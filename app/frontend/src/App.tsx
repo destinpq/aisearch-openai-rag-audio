@@ -13,8 +13,6 @@ import useAudioPlayer from "@/hooks/useAudioPlayer";
 
 import { GroundingFile, ToolResult } from "./types";
 
-import logo from "./assets/logo.svg";
-
 function App() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
@@ -65,9 +63,6 @@ function App() {
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-100 text-gray-900">
-            <div className="p-4 sm:absolute sm:left-4 sm:top-4">
-                <img src={logo} alt="Azure logo" className="h-16 w-16" />
-            </div>
             <main className="flex flex-grow flex-col items-center justify-center">
                 <h1 className="mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent md:text-7xl">
                     {t("app.title")}

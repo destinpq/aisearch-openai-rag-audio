@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Search OpenAI RAG Audio Backend Service
+After=network.target
+
+[Service]
+Type=simple
+User=azureuser
+WorkingDirectory=/home/azureuser/aisearch-openai-rag-audio/app/backend
+ExecStart=/home/azureuser/aisearch-openai-rag-audio/venv/bin/python /home/azureuser/aisearch-openai-rag-audio/app/backend/app.py
+Restart=on-failure
+RestartSec=5s
+Environment=PYTHONPATH=/home/azureuser/aisearch-openai-rag-audio
+
+[Install]
+WantedBy=multi-user.target 

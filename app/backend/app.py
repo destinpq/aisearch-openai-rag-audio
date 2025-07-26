@@ -10,7 +10,13 @@ from dotenv import load_dotenv
 from ragtools import attach_rag_tools
 from rtmt import RTMiddleTier
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger("voicerag")
 
 async def create_app():
@@ -41,13 +47,16 @@ async def create_app():
         voice_choice=os.environ.get("AZURE_OPENAI_REALTIME_VOICE_CHOICE") or "alloy"
         )
     rtmt.system_message = """
-        You are a helpful assistant. Only answer questions based on information you searched in the knowledge base, accessible with the 'search' tool. 
-        The user is listening to answers with audio, so it's *super* important that answers are as short as possible, a single sentence if at all possible. 
-        Never read file names or source names or keys out loud. 
-        Always use the following step-by-step instructions to respond: 
-        1. Always use the 'search' tool to check the knowledge base before answering a question. 
-        2. Always use the 'report_grounding' tool to report the source of information from the knowledge base. 
-        3. Produce an answer that's as short as possible. If the answer isn't in the knowledge base, say you don't know.
+        You are a specialized assistant that ONLY answers questions based on information found in the knowledge base, accessible with the 'search' tool.
+        The user is listening to answers with audio, so it's *super* important that answers are as short as possible, a single sentence if at all possible.
+        Never read file names or source names or keys out loud.
+        Always use the following step-by-step instructions to respond:
+        1. Always use the 'search' tool to check the knowledge base before answering any question.
+        2. NEVER provide information that isn't explicitly found in the knowledge base search results.
+        3. If the answer isn't clearly in the knowledge base, say "I don't have that information in my database" - do not attempt to answer from general knowledge.
+        4. Always use the 'report_grounding' tool to report the source of information from the knowledge base.
+        5. Produce an answer that's as short as possible while being accurate to the knowledge base content.
+        6. Refuse to answer questions that cannot be answered using the knowledge base, even general knowledge questions.
     """.strip()
 
     attach_rag_tools(rtmt,
