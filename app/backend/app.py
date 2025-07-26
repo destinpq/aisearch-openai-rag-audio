@@ -44,8 +44,9 @@ async def create_app():
         credentials=llm_credential,
         endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
         deployment=os.environ["AZURE_OPENAI_REALTIME_DEPLOYMENT"],
-        voice_choice=os.environ.get("AZURE_OPENAI_REALTIME_VOICE_CHOICE") or "alloy"
+        voice_choice=os.environ.get("AZURE_OPENAI_REALTIME_VOICE_CHOICE") or "alloy",
         )
+    rtmt.max_tokens = 4096
     rtmt.system_message = """
         You are a specialized assistant that ONLY answers questions based on information found in the knowledge base, accessible with the 'search' tool.
         The user is listening to answers with audio, so it's *super* important that answers are as short as possible, a single sentence if at all possible.
@@ -56,7 +57,7 @@ async def create_app():
         3. If the answer isn't clearly in the knowledge base, say "I don't have that information in my database" - do not attempt to answer from general knowledge.
         4. Always use the 'report_grounding' tool to report the source of information from the knowledge base.
         5. Produce an answer that's as short as possible while being accurate to the knowledge base content.
-        6. Refuse to answer questions that cannot be answered using the knowledge base, even general knowledge questions.
+        6. Always end your response with a brief closing like "Is there anything else I can help you with?" or "Do you need any further assistance?" to signal you've finished responding.
     """.strip()
 
     attach_rag_tools(rtmt,
