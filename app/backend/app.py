@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 
 from ragtools import attach_rag_tools
 from rtmt import RTMiddleTier
+from document_processing.routes import setup_routes as setup_document_routes
+from search_management.routes import setup_routes as setup_search_management_routes
 
 logging.basicConfig(
     level=logging.INFO,
@@ -73,6 +75,12 @@ async def create_app():
         )
 
     rtmt.attach_to_app(app, "/realtime")
+
+    # Set up document processing routes
+    setup_document_routes(app)
+    
+    # Set up search management routes
+    setup_search_management_routes(app)
 
     current_directory = Path(__file__).parent
     app.add_routes([web.get('/', lambda _: web.FileResponse(current_directory / 'static/index.html'))])

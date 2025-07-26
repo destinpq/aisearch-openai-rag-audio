@@ -10,6 +10,13 @@ export type HistoryItem = {
     groundingFiles: GroundingFile[];
 };
 
+export type IndexedDocument = {
+    id: string;
+    fact: string;
+    title: string;
+    created_at: string;
+};
+
 export type SessionUpdateCommand = {
     type: "session.update";
     session: {

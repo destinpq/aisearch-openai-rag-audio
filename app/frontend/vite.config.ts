@@ -22,6 +22,10 @@ export default defineConfig({
                 target: "ws://localhost:8765",
                 ws: true,
                 rewriteWsOrigin: true
+            },
+            "/api": {
+                target: "http://localhost:8765",
+                changeOrigin: true
             }
         }
     }
