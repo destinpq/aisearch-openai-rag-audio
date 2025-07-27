@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MessageSquare, FileText, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MessageSquare, FileText, Settings, Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import GroundingFileView from "@/components/ui/grounding-file-view";
@@ -23,6 +23,7 @@ function App() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
         onWebSocketOpen: () => console.log("WebSocket connection opened"),
@@ -65,6 +66,11 @@ function App() {
         }
     };
 
+    // Close mobile menu when changing tabs
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [activeTab]);
+
     const { t } = useTranslation();
 
     const tabs = [
@@ -75,7 +81,7 @@ function App() {
 
     return (
         <div className="flex h-screen bg-background text-foreground">
-            {/* Sidebar */}
+            {/* Desktop Sidebar */}
             <div className="hidden md:flex md:w-64 md:flex-col">
                 <div className="flex flex-col flex-grow border-r border-border bg-card pt-5 pb-4 overflow-y-auto">
                     <div className="flex items-center flex-shrink-0 px-4">
@@ -109,30 +115,69 @@ function App() {
                 </div>
             </div>
 
+            {/* Mobile Sidebar (Drawer) */}
+            <div className={`fixed inset-0 z-40 md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+                {/* Backdrop */}
+                <div 
+                    className="fixed inset-0 bg-black/50 transition-opacity" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-hidden="true"
+                ></div>
+                
+                {/* Drawer panel */}
+                <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-card shadow-lg transform transition-transform duration-300 ease-in-out">
+                    <div className="flex items-center justify-between h-16 px-4 border-b border-border">
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            {t("app.title")}
+                        </h1>
+                        <button 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="rounded-md text-muted-foreground hover:text-foreground focus:outline-none"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+                    </div>
+                    <div className="px-2 py-3 h-full overflow-y-auto">
+                        <nav className="space-y-1">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => {
+                                        setActiveTab(tab.id);
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className={`group flex items-center px-3 py-4 text-base font-medium rounded-md w-full ${
+                                        activeTab === tab.id
+                                            ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }`}
+                                >
+                                    <div className={`mr-4 ${
+                                        activeTab === tab.id ? "text-purple-500 dark:text-purple-400" : "text-muted-foreground group-hover:text-foreground"
+                                    }`}>
+                                        {tab.icon}
+                                    </div>
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
             {/* Mobile header */}
             <div className="md:hidden bg-card border-b border-border p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        {t("app.title")}
-                        <span className="block text-xs font-normal text-muted-foreground">By DestinPQ</span>
+                    <button
+                        onClick={() => setMobileMenuOpen(true)}
+                        className="p-2 -ml-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                    >
+                        <Menu className="h-6 w-6" />
+                    </button>
+                    <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {tabs.find(tab => tab.id === activeTab)?.label}
                     </h1>
                     <InternetSpeedIndicator />
-                </div>
-                <div className="flex mt-3 space-x-2 overflow-x-auto">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                                activeTab === tab.id
-                                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                            }`}
-                        >
-                            <div className="mr-2">{tab.icon}</div>
-                            {tab.label}
-                        </button>
-                    ))}
                 </div>
             </div>
 
@@ -146,7 +191,7 @@ function App() {
                 </div>
                 
                 <main className="flex-1 relative overflow-y-auto focus:outline-none">
-                    <div className="py-6 px-4 sm:px-6 lg:px-8">
+                    <div className="py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
                         {activeTab === "conversation" && (
                             <div className="max-w-3xl mx-auto">
                                 <ConversationInterface 
@@ -159,7 +204,7 @@ function App() {
                         )}
                         
                         {activeTab === "documents" && (
-                            <div className="max-w-4xl mx-auto space-y-6">
+                            <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                                 <TabNavigation
                                     activeTab={activeDocumentTab}
                                     onTabChange={setActiveDocumentTab}
@@ -171,18 +216,18 @@ function App() {
                                 />
 
                                 {activeDocumentTab === "search" && (
-                                    <div className="bg-card rounded-lg shadow p-6">
+                                    <div className="bg-card rounded-lg shadow p-4 sm:p-6">
                                         <IndexedDocuments />
                                     </div>
                                 )}
 
                                 {activeDocumentTab === "jobs" && (
-                                    <div className="space-y-6">
-                                        <div className="bg-card rounded-lg shadow p-6">
+                                    <div className="space-y-4 sm:space-y-6">
+                                        <div className="bg-card rounded-lg shadow p-4 sm:p-6">
                                             <h3 className="text-lg font-medium mb-4">Upload Document</h3>
                                             <PDFUploader />
                                         </div>
-                                        <div className="bg-card rounded-lg shadow p-6">
+                                        <div className="bg-card rounded-lg shadow p-4 sm:p-6">
                                             <h3 className="text-lg font-medium mb-4">Processing Jobs</h3>
                                             <PendingJobs />
                                         </div>

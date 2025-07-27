@@ -37,12 +37,12 @@ export function GroundingFiles({ files, onSelected }: Properties) {
     }
 
     return (
-        <Card className="m-4 max-w-full md:max-w-md lg:min-w-96 lg:max-w-2xl">
-            <CardHeader>
-                <CardTitle className="text-xl">{t("groundingFiles.title")}</CardTitle>
-                <CardDescription>{t("groundingFiles.description")}</CardDescription>
+        <Card className="mx-auto sm:m-4 w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl">
+            <CardHeader className="p-3 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">{t("groundingFiles.title")}</CardTitle>
+                <CardDescription className="text-sm sm:text-base">{t("groundingFiles.description")}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
                 <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}

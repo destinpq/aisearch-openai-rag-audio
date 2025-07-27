@@ -86,10 +86,10 @@ export function ConversationInterface({
       </div> */}
 
       {/* Recording controls */}
-      <div className="flex flex-col items-center justify-center mb-6">
+      <div className="flex flex-col items-center justify-center mb-4 sm:mb-6 px-2 sm:px-0">
         <Button
           onClick={onToggleListening}
-          className={`h-14 w-64 text-lg ${
+          className={`h-12 sm:h-14 w-full max-w-xs sm:max-w-sm text-base sm:text-lg ${
             isRecording 
               ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" 
               : "bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
@@ -114,7 +114,7 @@ export function ConversationInterface({
 
       {/* Grounding files */}
       {groundingFiles.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-2 sm:mt-4 w-full overflow-x-hidden">
           <GroundingFiles files={groundingFiles} onSelected={onFileSelected} />
         </div>
       )}
