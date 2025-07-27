@@ -6,11 +6,14 @@ import i18next from "./i18n/config";
 
 import App from "./App.tsx";
 import "./index.css";
+import { ThemeProvider } from "./components/ui/theme-provider";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <I18nextProvider i18n={i18next}>
-            <App />
+            <ThemeProvider defaultTheme="light" storageKey="converse-theme">
+                <App />
+            </ThemeProvider>
         </I18nextProvider>
     </StrictMode>
 );

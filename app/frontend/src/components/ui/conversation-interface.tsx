@@ -41,7 +41,7 @@ export function ConversationInterface({
   return (
     <div className="flex flex-col h-full">
       {/* Chat messages area */}
-      {/* <div className="flex-1 overflow-y-auto mb-4 p-4 bg-white rounded-lg shadow">
+      {/* <div className="flex-1 overflow-y-auto mb-4 p-4 bg-card rounded-lg shadow">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -55,20 +55,20 @@ export function ConversationInterface({
               >
                 <div
                   className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                    message.isUser ? "bg-purple-100 ml-2" : "bg-gray-100 mr-2"
+                    message.isUser ? "bg-primary/10 ml-2" : "bg-muted mr-2"
                   }`}
                 >
                   {message.isUser ? (
-                    <User className="h-5 w-5 text-purple-600" />
+                    <User className="h-5 w-5 text-primary" />
                   ) : (
-                    <Bot className="h-5 w-5 text-gray-600" />
+                    <Bot className="h-5 w-5 text-muted-foreground" />
                   )}
                 </div>
                 <div
                   className={`p-3 rounded-lg ${
                     message.isUser
-                      ? "bg-purple-500 text-white"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
@@ -90,7 +90,9 @@ export function ConversationInterface({
         <Button
           onClick={onToggleListening}
           className={`h-14 w-64 text-lg ${
-            isRecording ? "bg-red-600 hover:bg-red-700" : "bg-purple-500 hover:bg-purple-600"
+            isRecording 
+              ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" 
+              : "bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
           }`}
           aria-label={isRecording ? t("app.stopRecording") : t("app.startRecording")}
         >
@@ -101,17 +103,20 @@ export function ConversationInterface({
             </>
           ) : (
             <>
-              <Mic className="mr-2 h-6 w-6" />
+              <Mic className="mr-2 h-5 w-5" />
               {t("app.startRecording")}
             </>
           )}
         </Button>
+        
         <StatusMessage isRecording={isRecording} />
       </div>
 
       {/* Grounding files */}
       {groundingFiles.length > 0 && (
-        <GroundingFiles files={groundingFiles} onSelected={onFileSelected} />
+        <div className="mt-4">
+          <GroundingFiles files={groundingFiles} onSelected={onFileSelected} />
+        </div>
       )}
     </div>
   );

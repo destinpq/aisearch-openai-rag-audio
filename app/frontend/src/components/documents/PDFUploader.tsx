@@ -189,15 +189,15 @@ export function PDFUploader() {
     }
   };
 
-  const getProgressValue = () => {
-    const { progress } = uploadStatus;
-    if (!progress || !progress.total_chunks) return 0;
+  // const getProgressValue = () => {
+  //   const { progress } = uploadStatus;
+  //   if (!progress || !progress.total_chunks) return 0;
     
-    const processedChunks = progress.processed_chunks || 0;
-    const indexedChunks = uploadToIndex ? (progress.indexed_chunks || 0) : processedChunks;
+  //   const processedChunks = progress.processed_chunks || 0;
+  //   const indexedChunks = uploadToIndex ? (progress.indexed_chunks || 0) : processedChunks;
     
-    return (indexedChunks / progress.total_chunks) * 100;
-  };
+  //   return (indexedChunks / progress.total_chunks) * 100;
+  // };
 
   // Clean up interval on unmount
   useEffect(() => {

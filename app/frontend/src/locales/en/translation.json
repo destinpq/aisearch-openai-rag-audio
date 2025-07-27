@@ -1,9 +1,9 @@
 {
     "app": {
         "title": "Converse",
-        "footer": "Built with RAG",
-        "stopRecording": "Stop recording",
-        "startRecording": "Start recording",
+        "footer": "Built and Maintained by DestinPQ",
+        "stopRecording": "Stop conversation",
+        "startRecording": "Start conversation",
         "stopConversation": "Stop conversation"
     },
     "status": {
@@ -63,5 +63,18 @@
         "submit": "Create Document",
         "submitting": "Creating...",
         "fieldsRequired": "Title and content are required"
+    },
+    "index": {
+        "adminSection": "Index Administration",
+        "adminDescription": "Advanced operations for managing the search index.",
+        "clearAll": "Clear All Documents",
+        "confirmClearTitle": "Clear All Documents?",
+        "confirmClearMessage": "This will permanently delete ALL documents from the search index. This action cannot be undone.",
+        "confirmClear": "Yes, Clear All Documents",
+        "clearing": "Clearing...",
+        "deletedCount": "{{count}} documents deleted"
+    },
+    "common": {
+        "cancel": "Cancel"
     }
 }

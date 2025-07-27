@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import { Button } from "./button";
 import { Volume2, VolumeX, Globe, Moon, Sun } from "lucide-react";
+import { useTheme } from "./theme-provider";
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState(i18n.language || "en");
 
   const languages = [
@@ -36,8 +37,7 @@ export function SettingsPage() {
   };
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // In a real implementation, this would apply dark mode to the entire app
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -57,17 +57,17 @@ export function SettingsPage() {
               variant="outline"
               size="sm"
               onClick={toggleDarkMode}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/30"
             >
-              {isDarkMode ? (
+              {theme === "dark" ? (
                 <>
-                  <Sun className="h-4 w-4" />
-                  {t("settings.lightMode")}
+                  <Sun className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-purple-600 dark:text-purple-400">{t("settings.lightMode")}</span>
                 </>
               ) : (
                 <>
-                  <Moon className="h-4 w-4" />
-                  {t("settings.darkMode")}
+                  <Moon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-purple-600 dark:text-purple-400">{t("settings.darkMode")}</span>
                 </>
               )}
             </Button>
@@ -87,11 +87,12 @@ export function SettingsPage() {
               size="icon"
               onClick={toggleMute}
               aria-label={isMuted ? t("settings.unmute") : t("settings.mute")}
+              className="border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/30"
             >
               {isMuted ? (
-                <VolumeX className="h-4 w-4" />
+                <VolumeX className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               ) : (
-                <Volume2 className="h-4 w-4" />
+                <Volume2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               )}
             </Button>
             <input
@@ -100,7 +101,7 @@ export function SettingsPage() {
               max="100"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
             <span className="text-sm font-medium w-8 text-right">
               {isMuted ? 0 : volume}%
@@ -116,11 +117,11 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2">
-            <Globe className="h-4 w-4 text-gray-500" />
+            <Globe className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <select
               value={language}
               onChange={handleLanguageChange}
-              className="flex-1 rounded-md border border-gray-300 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="flex-1 rounded-md border border-gray-300 dark:border-gray-700 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-transparent"
             >
               {languages.map((lang) => (
                 <option key={lang.code} value={lang.code}>

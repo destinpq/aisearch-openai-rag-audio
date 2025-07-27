@@ -74,13 +74,14 @@ function App() {
     ];
 
     return (
-        <div className="flex h-screen bg-gray-50 text-gray-900">
+        <div className="flex h-screen bg-background text-foreground">
             {/* Sidebar */}
             <div className="hidden md:flex md:w-64 md:flex-col">
-                <div className="flex flex-col flex-grow border-r border-gray-200 bg-white pt-5 pb-4 overflow-y-auto">
+                <div className="flex flex-col flex-grow border-r border-border bg-card pt-5 pb-4 overflow-y-auto">
                     <div className="flex items-center flex-shrink-0 px-4">
                         <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                             {t("app.title")}
+                            <span className="block text-xs font-normal text-muted-foreground">By DestinPQ</span>
                         </h1>
                     </div>
                     <div className="mt-5 flex-grow flex flex-col">
@@ -91,12 +92,12 @@ function App() {
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`group flex items-center px-2 py-3 text-sm font-medium rounded-md w-full ${
                                         activeTab === tab.id
-                                            ? "bg-purple-50 text-purple-700"
-                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                            ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
                                     <div className={`mr-3 ${
-                                        activeTab === tab.id ? "text-purple-500" : "text-gray-400 group-hover:text-gray-500"
+                                        activeTab === tab.id ? "text-purple-500 dark:text-purple-400" : "text-muted-foreground group-hover:text-foreground"
                                     }`}>
                                         {tab.icon}
                                     </div>
@@ -109,10 +110,11 @@ function App() {
             </div>
 
             {/* Mobile header */}
-            <div className="md:hidden bg-white border-b border-gray-200 p-4">
+            <div className="md:hidden bg-card border-b border-border p-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                         {t("app.title")}
+                        <span className="block text-xs font-normal text-muted-foreground">By DestinPQ</span>
                     </h1>
                     <InternetSpeedIndicator />
                 </div>
@@ -123,8 +125,8 @@ function App() {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                                 activeTab === tab.id
-                                    ? "bg-purple-100 text-purple-700"
-                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`}
                         >
                             <div className="mr-2">{tab.icon}</div>
@@ -136,8 +138,8 @@ function App() {
 
             {/* Main content */}
             <div className="flex flex-col flex-1 overflow-hidden">
-                <div className="hidden md:flex md:items-center md:justify-between md:px-6 md:py-3 md:border-b md:border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-800">
+                <div className="hidden md:flex md:items-center md:justify-between md:px-6 md:py-3 md:border-b md:border-border">
+                    <h2 className="text-xl font-semibold text-foreground">
                         {tabs.find(tab => tab.id === activeTab)?.label}
                     </h2>
                     <InternetSpeedIndicator />
@@ -169,18 +171,18 @@ function App() {
                                 />
 
                                 {activeDocumentTab === "search" && (
-                                    <div className="bg-white rounded-lg shadow p-6">
+                                    <div className="bg-card rounded-lg shadow p-6">
                                         <IndexedDocuments />
                                     </div>
                                 )}
 
                                 {activeDocumentTab === "jobs" && (
                                     <div className="space-y-6">
-                                        <div className="bg-white rounded-lg shadow p-6">
+                                        <div className="bg-card rounded-lg shadow p-6">
                                             <h3 className="text-lg font-medium mb-4">Upload Document</h3>
                                             <PDFUploader />
                                         </div>
-                                        <div className="bg-white rounded-lg shadow p-6">
+                                        <div className="bg-card rounded-lg shadow p-6">
                                             <h3 className="text-lg font-medium mb-4">Processing Jobs</h3>
                                             <PendingJobs />
                                         </div>
@@ -197,7 +199,7 @@ function App() {
                     </div>
                 </main>
                 
-                <footer className="hidden md:block bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
+                <footer className="hidden md:block bg-card border-t border-border p-4 text-center text-sm text-muted-foreground">
                     <p>{t("app.footer")}</p>
                 </footer>
             </div>

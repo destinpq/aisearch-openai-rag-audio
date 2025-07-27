@@ -5,10 +5,11 @@ import { IndexedDocument } from "@/types";
 import { Button } from "./button";
 import { Card } from "./card";
 import { DocumentForm } from "./document-form";
+import { ClearIndexButton } from "./clear-index-button";
 
 export function IndexedDocuments() {
   const [documents, setDocuments] = useState<IndexedDocument[]>([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -96,9 +97,17 @@ export function IndexedDocuments() {
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">{t("documents.loading")}</div>;
-  }
+  // Handle successful index clearing
+  const handleIndexCleared = () => {
+    // Clear the current documents display
+    setDocuments([]);
+    // Clear the search term
+    setSearchTerm("");
+  };
+
+  // if (loading) {
+  //   return <div className="text-center py-8">{t("documents.loading")}</div>;
+  // }
 
   if (error) {
     return (
@@ -132,33 +141,46 @@ export function IndexedDocuments() {
           <DocumentForm onDocumentAdded={handleDocumentAdded} />
         </>
       ) : (
-        <div className="flex justify-between items-center mb-6">
-          <div className="relative flex-grow mr-4">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder={t("documents.search")}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoFocus
-            />
-            {isSearching && (
-              <div className="absolute inset-y-0 right-3 flex items-center">
-                <div className="animate-spin h-4 w-4 border-2 border-purple-500 rounded-full border-t-transparent"></div>
+        <>
+          <div className="flex justify-between items-center mb-6">
+            <div className="relative flex-grow mr-4">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
               </div>
-            )}
+              <input
+                type="text"
+                placeholder={t("documents.search")}
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+              {isSearching && (
+                <div className="absolute inset-y-0 right-3 flex items-center">
+                  <div className="animate-spin h-4 w-4 border-2 border-purple-500 rounded-full border-t-transparent"></div>
+                </div>
+              )}
+            </div>
+            <Button
+              onClick={() => setShowForm(true)}
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              <Plus className="h-5 w-5 mr-1" />
+              {t("documents.add")}
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowForm(true)}
-            className="bg-purple-500 hover:bg-purple-600"
-          >
-            <Plus className="h-5 w-5 mr-1" />
-            {t("documents.add")}
-          </Button>
-        </div>
+
+          {/* Admin section with clear index button */}
+          <div className="mb-8 border-t border-b border-gray-200 py-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {t("index.adminSection")}
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">
+              {t("index.adminDescription")}
+            </p>
+            <ClearIndexButton onSuccess={handleIndexCleared} />
+          </div>
+        </>
       )}
 
       {!showForm && documents.length === 0 ? (
