@@ -1,20 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Upload, CheckCircle2, XCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 interface UploadStatus {
-  documentId?: string;
   status: 'idle' | 'uploading' | 'processing' | 'completed' | 'failed';
-  message?: string;
   filename?: string;
+  message?: string;
+  documentId?: string;
   progress?: {
-    total_chunks?: number;
-    processed_chunks?: number;
-    indexed_chunks?: number;
+    total_chunks: number;
+    processed_chunks: number;
+    indexed_chunks: number;
   };
 }
 
@@ -209,93 +209,125 @@ export function PDFUploader() {
   }, []);
 
   return (
-    <div className="w-full max-w-md p-4 space-y-4">
-      <div className="flex items-center space-x-4">
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={handleFileChange}
-          ref={fileInputRef}
-          className="hidden"
-        />
-        
-        <Button 
-          onClick={() => fileInputRef.current?.click()}
-          variant="outline"
-          disabled={uploadStatus.status === 'uploading' || uploadStatus.status === 'processing'}
-        >
-          Select PDF
-        </Button>
-        
-        <div className="flex-1 truncate">
-          {selectedFile ? selectedFile.name : 'No file selected'}
-        </div>
-      </div>
+    <Card className="border border-gray-200">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center">
+          <FileText className="mr-2 h-5 w-5 text-purple-500" />
+          Upload PDF Document
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {uploadStatus.status === 'idle' && (
+            <>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  ref={fileInputRef}
+                  className="hidden"
+                />
+                
+                <Button 
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  className="flex-none"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Select PDF
+                </Button>
+                
+                <div className="flex-1 truncate text-sm">
+                  {selectedFile ? (
+                    <span className="font-medium">{selectedFile.name}</span>
+                  ) : (
+                    <span className="text-gray-500">No file selected</span>
+                  )}
+                </div>
+              </div>
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="upload-to-index"
-          checked={uploadToIndex}
-          onCheckedChange={setUploadToIndex}
-          disabled={uploadStatus.status === 'uploading' || uploadStatus.status === 'processing'}
-        />
-        <Label htmlFor="upload-to-index">Upload to search index</Label>
-      </div>
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch
+                  id="upload-to-index"
+                  checked={uploadToIndex}
+                  onCheckedChange={setUploadToIndex}
+                />
+                <Label htmlFor="upload-to-index" className="text-sm">Add to search index</Label>
+              </div>
+            </>
+          )}
 
-      {selectedFile && uploadStatus.status === 'idle' && (
-        <Button 
-          onClick={handleUpload}
-          className="w-full"
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Upload PDF
-        </Button>
-      )}
+          {uploadStatus.status === 'uploading' && (
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Upload className="mr-2 h-4 w-4 animate-pulse text-blue-500" />
+                <span>Uploading {uploadStatus.filename}...</span>
+              </div>
+              <Progress value={50} className="w-full" />
+            </div>
+          )}
 
-      {(uploadStatus.status === 'uploading' || uploadStatus.status === 'processing') && (
-        <div className="space-y-2">
-          <Alert>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <AlertTitle>
-              {uploadStatus.status === 'uploading' ? 'Uploading...' : 'Processing...'}
-            </AlertTitle>
-            <AlertDescription>
-              {uploadStatus.message}
-            </AlertDescription>
-          </Alert>
-          
-          {uploadStatus.status === 'processing' && uploadStatus.progress && (
-            <Progress value={getProgressValue()} className="w-full" />
+          {uploadStatus.status === 'processing' && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-500" />
+                  <span>Processing {uploadStatus.filename}</span>
+                </div>
+                <span className="text-xs text-gray-500">
+                  {uploadStatus.progress?.processed_chunks || 0} of {uploadStatus.progress?.total_chunks || 0} chunks
+                </span>
+              </div>
+              <Progress 
+                value={uploadStatus.progress?.total_chunks 
+                  ? ((uploadStatus.progress.processed_chunks || 0) / uploadStatus.progress.total_chunks) * 100 
+                  : 0} 
+                className="w-full" 
+              />
+            </div>
+          )}
+
+          {uploadStatus.status === 'completed' && (
+            <div className="space-y-3">
+              <div className="flex items-center text-green-600">
+                <CheckCircle className="mr-2 h-5 w-5" />
+                <span>Successfully processed {uploadStatus.filename}</span>
+              </div>
+              <Button onClick={resetUpload} variant="outline" size="sm" className="mt-1">
+                Upload Another
+              </Button>
+            </div>
+          )}
+
+          {uploadStatus.status === 'failed' && (
+            <div className="space-y-3">
+              <div className="flex items-center text-red-600">
+                <AlertCircle className="mr-2 h-5 w-5" />
+                <span>Failed to process {uploadStatus.filename}</span>
+              </div>
+              {uploadStatus.message && (
+                <p className="text-sm text-red-500 bg-red-50 p-2 rounded">{uploadStatus.message}</p>
+              )}
+              <Button onClick={resetUpload} variant="outline" size="sm" className="mt-1">
+                Try Again
+              </Button>
+            </div>
           )}
         </div>
-      )}
-
-      {uploadStatus.status === 'completed' && (
-        <Alert className="bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertTitle>Success!</AlertTitle>
-          <AlertDescription>
-            PDF processed successfully
-            {uploadToIndex && ' and uploaded to search index'}
-          </AlertDescription>
-          <Button onClick={resetUpload} variant="outline" className="mt-2">
-            Upload Another
+      </CardContent>
+      
+      {selectedFile && uploadStatus.status === 'idle' && (
+        <CardFooter className="pt-0">
+          <Button 
+            onClick={handleUpload}
+            className="w-full bg-purple-600 hover:bg-purple-700"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Upload PDF
           </Button>
-        </Alert>
+        </CardFooter>
       )}
-
-      {uploadStatus.status === 'failed' && (
-        <Alert className="bg-red-50">
-          <XCircle className="h-4 w-4 text-red-600" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {uploadStatus.message || 'Failed to process PDF'}
-          </AlertDescription>
-          <Button onClick={resetUpload} variant="outline" className="mt-2">
-            Try Again
-          </Button>
-        </Alert>
-      )}
-    </div>
+    </Card>
   );
 } 

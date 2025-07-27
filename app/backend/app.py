@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from aiohttp import web
-from aiohttp_cors import setup as setup_cors, ResourceOptions, CorsViewMixin
+from aiohttp_cors import setup as setup_cors, ResourceOptions
 from azure.core.credentials import AzureKeyCredential
 from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
 from dotenv import load_dotenv

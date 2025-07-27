@@ -10,6 +10,7 @@ from typing import Optional
 from aiohttp import web
 from azure.core.credentials import AzureKeyCredential
 from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
+from azure.search.documents.models import VectorizedQuery
 
 from .search_client import SearchIndexClient
 
@@ -58,6 +59,7 @@ class SearchManagementRoutes:
         self.app.router.add_get('/api/documents/{document_id}', self.get_document)
         self.app.router.add_post('/api/documents', self.create_document)
         self.app.router.add_delete('/api/documents/{document_id}', self.delete_document)
+        self.app.router.add_get('/api/search', self.search_documents)
     
     async def get_documents(self, request: web.Request) -> web.Response:
         """
@@ -75,6 +77,55 @@ class SearchManagementRoutes:
             return web.json_response({"documents": documents})
         except Exception as e:
             logger.error(f"Error retrieving documents: {str(e)}")
+            return web.json_response({"error": str(e)}, status=500)
+    
+    async def search_documents(self, request: web.Request) -> web.Response:
+        """
+        Search documents in Azure AI Search.
+        
+        Endpoint: GET /api/search
+        Query parameters:
+            query: The search query
+            limit: Maximum number of documents to retrieve (default: 10)
+        """
+        try:
+            query = request.query.get('query', '').strip()
+            if not query:
+                return web.json_response({"results": []})
+                
+            limit = int(request.query.get('limit', '10'))
+            limit = min(max(1, limit), 50)  # Limit between 1 and 50
+            
+            semantic_configuration = os.environ.get("AZURE_SEARCH_SEMANTIC_CONFIGURATION")
+            embedding_field = os.environ.get("AZURE_SEARCH_EMBEDDING_FIELD", "text_vector")
+            use_vector_query = os.environ.get("AZURE_SEARCH_USE_VECTOR_QUERY", "true") == "true"
+            
+            # Perform search using Azure AI Search
+            vector_queries = []
+            if use_vector_query:
+                vector_queries.append(VectorizedQuery(text=query, k_nearest_neighbors=limit, fields=embedding_field))
+            
+            search_results = await self.client.search_client.search(
+                search_text=query,
+                query_type="semantic" if semantic_configuration else "simple",
+                semantic_configuration_name=semantic_configuration,
+                top=limit,
+                vector_queries=vector_queries if vector_queries else None,
+                select=["id", "fact", "title", "created_at"]
+            )
+            
+            results = []
+            async for document in search_results:
+                results.append({
+                    "id": document["id"],
+                    "fact": document["fact"],
+                    "title": document["title"],
+                    "created_at": document.get("created_at", "")
+                })
+            
+            return web.json_response({"results": results})
+        except Exception as e:
+            logger.error(f"Error searching documents: {str(e)}")
             return web.json_response({"error": str(e)}, status=500)
     
     async def get_document(self, request: web.Request) -> web.Response:

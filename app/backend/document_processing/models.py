@@ -53,6 +53,11 @@ class DocumentDatabase:
         conn.commit()
         conn.close()
     
+    def _ensure_db_exists(self):
+        """Ensure the database exists before performing operations."""
+        if not os.path.exists(self.db_path):
+            self._initialize_db()
+    
     def create_document(self, document_id: str, filename: str, metadata: Dict = None) -> Dict:
         """
         Create a new document entry.
@@ -65,6 +70,8 @@ class DocumentDatabase:
         Returns:
             dict: The created document record
         """
+        self._ensure_db_exists()
+        
         now = datetime.datetime.now().isoformat()
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -97,6 +104,8 @@ class DocumentDatabase:
         Returns:
             dict: The updated document record
         """
+        self._ensure_db_exists()
+        
         now = datetime.datetime.now().isoformat()
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -129,6 +138,8 @@ class DocumentDatabase:
         Returns:
             dict: The updated document record
         """
+        self._ensure_db_exists()
+        
         now = datetime.datetime.now().isoformat()
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -168,6 +179,8 @@ class DocumentDatabase:
         Returns:
             dict: The document record or None if not found
         """
+        self._ensure_db_exists()
+        
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -197,6 +210,8 @@ class DocumentDatabase:
         Returns:
             list: List of document records
         """
+        self._ensure_db_exists()
+        
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -225,6 +240,8 @@ class DocumentDatabase:
         Returns:
             list: List of document records with status pending or processing
         """
+        self._ensure_db_exists()
+        
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()

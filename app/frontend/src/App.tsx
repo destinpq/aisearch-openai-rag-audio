@@ -9,6 +9,7 @@ import { ConversationInterface } from "@/components/ui/conversation-interface";
 import { SettingsPage } from "@/components/ui/settings-page";
 import { PDFUploader } from "@/components/documents/PDFUploader";
 import { PendingJobs } from "@/components/documents/PendingJobs";
+import { TabNavigation } from "@/components/ui/tab-navigation";
 
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
@@ -18,6 +19,7 @@ import { GroundingFile, ToolResult } from "./types";
 
 function App() {
     const [activeTab, setActiveTab] = useState("conversation");
+    const [activeDocumentTab, setActiveDocumentTab] = useState("search");
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
@@ -155,19 +157,35 @@ function App() {
                         )}
                         
                         {activeTab === "documents" && (
-                            <div className="max-w-4xl mx-auto space-y-8">
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <h3 className="text-lg font-medium mb-4">Upload New Document</h3>
-                                    <PDFUploader />
-                                </div>
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <h3 className="text-lg font-medium mb-4">Indexed Documents</h3>
-                                    <IndexedDocuments />
-                                </div>
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <h3 className="text-lg font-medium mb-4">Pending Jobs</h3>
-                                    <PendingJobs />
-                                </div>
+                            <div className="max-w-4xl mx-auto space-y-6">
+                                <TabNavigation
+                                    activeTab={activeDocumentTab}
+                                    onTabChange={setActiveDocumentTab}
+                                    tabs={[
+                                        { id: "search", label: "Search Documents" },
+                                        { id: "jobs", label: "Upload & Process" },
+                                    ]}
+                                    className="mb-4"
+                                />
+
+                                {activeDocumentTab === "search" && (
+                                    <div className="bg-white rounded-lg shadow p-6">
+                                        <IndexedDocuments />
+                                    </div>
+                                )}
+
+                                {activeDocumentTab === "jobs" && (
+                                    <div className="space-y-6">
+                                        <div className="bg-white rounded-lg shadow p-6">
+                                            <h3 className="text-lg font-medium mb-4">Upload Document</h3>
+                                            <PDFUploader />
+                                        </div>
+                                        <div className="bg-white rounded-lg shadow p-6">
+                                            <h3 className="text-lg font-medium mb-4">Processing Jobs</h3>
+                                            <PendingJobs />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                         

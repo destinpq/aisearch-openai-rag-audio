@@ -99,12 +99,17 @@ export function PendingJobs() {
   }
 
   if (pendingJobs.length === 0) {
-    return null; // Don't show anything if there are no pending jobs
+    return (
+      <Alert>
+        <CheckCircle2 className="h-4 w-4 text-green-600" />
+        <AlertTitle>No pending jobs</AlertTitle>
+        <AlertDescription>All documents have been processed.</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
-    <div className="space-y-4 mb-6">
-      <h2 className="text-xl font-semibold">Pending Jobs</h2>
+    <div className="space-y-4">
       {pendingJobs.map(job => (
         <Card key={job.id}>
           <CardHeader className="pb-2">

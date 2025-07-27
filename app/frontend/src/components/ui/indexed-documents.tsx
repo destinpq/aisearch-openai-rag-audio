@@ -8,33 +8,15 @@ import { DocumentForm } from "./document-form";
 
 export function IndexedDocuments() {
   const [documents, setDocuments] = useState<IndexedDocument[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const { t } = useTranslation();
 
-  const fetchDocuments = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/documents");
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      const data = await response.json();
-      setDocuments(data.documents || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch documents");
-      console.error("Error fetching documents:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
+  // Remove the initial document fetch on component mount
+  // We'll only load documents when the user searches
 
   const handleDelete = async (id: string) => {
     if (!confirm(t("documents.confirmDelete"))) return;
@@ -57,18 +39,50 @@ export function IndexedDocuments() {
   };
 
   const handleDocumentAdded = () => {
-    fetchDocuments();
+    // After adding a document, search for it if there's a search term
+    if (searchTerm.trim()) {
+      searchDocuments(searchTerm);
+    }
     setShowForm(false);
   };
 
-  const filteredDocuments = documents.filter((doc) => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      doc.title.toLowerCase().includes(searchLower) ||
-      doc.fact.toLowerCase().includes(searchLower)
-    );
-  });
+  // Search documents using Azure AI Search
+  const searchDocuments = async (query: string) => {
+    setIsSearching(true);
+    setError(null);
+    
+    try {
+      if (!query.trim()) {
+        // If search is empty, clear results instead of fetching all documents
+        setDocuments([]);
+        setIsSearching(false);
+        return;
+      }
+      
+      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setDocuments(data.results || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to search documents");
+      console.error("Error searching documents:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounce search to avoid too many requests
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchDocuments(searchTerm);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -92,7 +106,7 @@ export function IndexedDocuments() {
         {t("documents.error")}: {error}
         <Button
           className="mt-4 bg-purple-500 hover:bg-purple-600"
-          onClick={fetchDocuments}
+          onClick={() => searchDocuments(searchTerm)}
         >
           {t("documents.retry")}
         </Button>
@@ -129,7 +143,13 @@ export function IndexedDocuments() {
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              autoFocus
             />
+            {isSearching && (
+              <div className="absolute inset-y-0 right-3 flex items-center">
+                <div className="animate-spin h-4 w-4 border-2 border-purple-500 rounded-full border-t-transparent"></div>
+              </div>
+            )}
           </div>
           <Button
             onClick={() => setShowForm(true)}
@@ -141,16 +161,16 @@ export function IndexedDocuments() {
         </div>
       )}
 
-      {!showForm && filteredDocuments.length === 0 ? (
+      {!showForm && documents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           {searchTerm
             ? t("documents.noSearchResults")
-            : t("documents.noDocuments")}
+            : t("documents.searchToViewDocuments")}
         </div>
       ) : (
         !showForm && (
           <div className="space-y-4">
-            {filteredDocuments.map((doc) => (
+            {documents.map((doc) => (
               <Card key={doc.id} className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
