@@ -2,7 +2,7 @@
 
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-VENV_DIR="${SCRIPT_DIR}/../../venv"
+VENV_DIR="${SCRIPT_DIR}/../../.venv"
 APP_DIR="${SCRIPT_DIR}"
 LOG_FILE="${APP_DIR}/service.log"
 

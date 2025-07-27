@@ -7,6 +7,8 @@ import InternetSpeedIndicator from "@/components/ui/internet-speed-indicator";
 import { IndexedDocuments } from "@/components/ui/indexed-documents";
 import { ConversationInterface } from "@/components/ui/conversation-interface";
 import { SettingsPage } from "@/components/ui/settings-page";
+import { PDFUploader } from "@/components/documents/PDFUploader";
+import { PendingJobs } from "@/components/documents/PendingJobs";
 
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
@@ -153,8 +155,19 @@ function App() {
                         )}
                         
                         {activeTab === "documents" && (
-                            <div className="max-w-4xl mx-auto">
-                                <IndexedDocuments />
+                            <div className="max-w-4xl mx-auto space-y-8">
+                                <div className="bg-white rounded-lg shadow p-6">
+                                    <h3 className="text-lg font-medium mb-4">Upload New Document</h3>
+                                    <PDFUploader />
+                                </div>
+                                <div className="bg-white rounded-lg shadow p-6">
+                                    <h3 className="text-lg font-medium mb-4">Indexed Documents</h3>
+                                    <IndexedDocuments />
+                                </div>
+                                <div className="bg-white rounded-lg shadow p-6">
+                                    <h3 className="text-lg font-medium mb-4">Pending Jobs</h3>
+                                    <PendingJobs />
+                                </div>
                             </div>
                         )}
                         

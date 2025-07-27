@@ -9,9 +9,13 @@ dependencies = [
     "azure-identity>=1.23.1",
     "azure-search-documents>=11.5.3",
     "azure-storage-blob>=12.26.0",
+    "celery>=5.5.3",
     "gunicorn>=23.0.0",
+    "numpy>=2.3.2",
+    "openai>=1.97.1",
     "pdfplumber>=0.11.7",
     "python-dotenv>=1.1.1",
+    "redis>=6.2.0",
     "requests>=2.32.4",
     "rich>=14.1.0",
 ]

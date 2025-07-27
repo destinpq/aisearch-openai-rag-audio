@@ -26,6 +26,18 @@ export default defineConfig({
             "/api": {
                 target: "http://localhost:8765",
                 changeOrigin: true
+            },
+            "/process-pdf": {
+                target: "http://localhost:8765",
+                changeOrigin: true
+            },
+            "/document": {
+                target: "http://localhost:8765",
+                changeOrigin: true
+            },
+            "/documents": {
+                target: "http://localhost:8765",
+                changeOrigin: true
             }
         }
     }

@@ -1,17 +1,16 @@
-import { useState } from "react";
-import { Mic, MicOff, User, Bot } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./button";
 import StatusMessage from "./status-message";
 import { GroundingFiles } from "./grounding-files";
 import { GroundingFile } from "@/types";
 
-interface Message {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+// interface Message {
+//   id: string;
+//   content: string;
+//   isUser: boolean;
+//   timestamp: Date;
+// }
 
 interface ConversationInterfaceProps {
   isRecording: boolean;
@@ -27,14 +26,14 @@ export function ConversationInterface({
   onFileSelected,
 }: ConversationInterfaceProps) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "Welcome! How can I help you today?",
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ]);
+  // const [messages, setMessages] = useState<Message[]>([
+  //   {
+  //     id: "welcome",
+  //     content: "Welcome! How can I help you today?",
+  //     isUser: false,
+  //     timestamp: new Date(),
+  //   },
+  // ]);
 
   // This would be connected to the actual conversation in a real implementation
   // For now, it's just a placeholder to demonstrate the UI
@@ -42,7 +41,7 @@ export function ConversationInterface({
   return (
     <div className="flex flex-col h-full">
       {/* Chat messages area */}
-      <div className="flex-1 overflow-y-auto mb-4 p-4 bg-white rounded-lg shadow">
+      {/* <div className="flex-1 overflow-y-auto mb-4 p-4 bg-white rounded-lg shadow">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -84,7 +83,7 @@ export function ConversationInterface({
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Recording controls */}
       <div className="flex flex-col items-center justify-center mb-6">

@@ -68,7 +68,7 @@ class SearchManagementRoutes:
             limit: Maximum number of documents to retrieve (default: 15)
         """
         try:
-            limit = int(request.query.get('limit', '15'))
+            limit = int(request.query.get('limit', '50'))
             limit = min(max(1, limit), 100)  # Limit between 1 and 100
             
             documents = await self.client.get_documents(limit=limit)

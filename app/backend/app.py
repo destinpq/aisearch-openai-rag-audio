@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from aiohttp import web
+from aiohttp_cors import setup as setup_cors, ResourceOptions, CorsViewMixin
 from azure.core.credentials import AzureKeyCredential
 from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
 from dotenv import load_dotenv
@@ -40,7 +41,31 @@ async def create_app():
     llm_credential = AzureKeyCredential(llm_key) if llm_key else credential
     search_credential = AzureKeyCredential(search_key) if search_key else credential
     
+    # Ensure embedding deployment is set
+    if not os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"):
+        realtime_deployment = os.environ.get("AZURE_OPENAI_REALTIME_DEPLOYMENT")
+        if realtime_deployment:
+            logger.info(f"Setting AZURE_OPENAI_EMBEDDING_DEPLOYMENT to {realtime_deployment}")
+            os.environ["AZURE_OPENAI_EMBEDDING_DEPLOYMENT"] = realtime_deployment
+        else:
+            logger.warning("AZURE_OPENAI_EMBEDDING_DEPLOYMENT not set and no fallback available")
+    
+    # Set embedding model if not set
+    if not os.environ.get("AZURE_OPENAI_EMBEDDING_MODEL"):
+        logger.info("Setting AZURE_OPENAI_EMBEDDING_MODEL to text-embedding-ada-002")
+        os.environ["AZURE_OPENAI_EMBEDDING_MODEL"] = "text-embedding-ada-002"
+    
     app = web.Application()
+
+    # Configure CORS
+    cors = setup_cors(app, defaults={
+        "*": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods="*"
+        )
+    })
 
     rtmt = RTMiddleTier(
         credentials=llm_credential,
@@ -81,6 +106,10 @@ async def create_app():
     
     # Set up search management routes
     setup_search_management_routes(app)
+
+    # Configure CORS for all routes
+    for route in list(app.router.routes()):
+        cors.add(route)
 
     current_directory = Path(__file__).parent
     app.add_routes([web.get('/', lambda _: web.FileResponse(current_directory / 'static/index.html'))])
