@@ -51,9 +51,23 @@ export default function useRealTime({
     onReceivedInputAudioTranscriptionCompleted,
     onReceivedError
 }: Parameters) {
-    const wsEndpoint = useDirectAoaiApi
-        ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
-        : `/realtime`;
+    // Determine WebSocket endpoint based on environment
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const isProduction = apiUrl?.includes("converse.destinpq.com") || import.meta.env.PROD;
+
+    let wsEndpoint: string;
+    if (useDirectAoaiApi) {
+        wsEndpoint = `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`;
+    } else if (isProduction && apiUrl && !apiUrl.includes(window.location.host)) {
+        // Production environment with custom domain - use production WebSocket
+        const wsProtocol = apiUrl?.startsWith("https") ? "wss:" : "ws:";
+        const wsHost = apiUrl ? new URL(apiUrl).host : window.location.host;
+        wsEndpoint = `${wsProtocol}//${wsHost}/realtime`;
+    } else {
+        // Use same host as current page for WebSocket
+        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        wsEndpoint = `${wsProtocol}//${window.location.host}/realtime`;
+    }
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {
         onOpen: () => onWebSocketOpen?.(),
