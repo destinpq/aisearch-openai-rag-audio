@@ -81,10 +81,6 @@ param workloadProfile string = 'Consumption'
 
 param allowedOrigins array = []
 
-resource existingApp 'Microsoft.App/containerApps@2023-05-02-preview' existing = if (exists) {
-  name: name
-}
-
 module app 'container-app.bicep' = {
   name: '${deployment().name}-update'
   params: {
@@ -116,7 +112,7 @@ module app 'container-app.bicep' = {
         value: '${env[key]}'
       }
     ]
-    imageName: !empty(imageName) ? imageName : exists ? existingApp.properties.template.containers[0].image : ''
+    imageName: !empty(imageName) ? imageName : exists ? reference('${resourceGroup().name}/providers/Microsoft.App/containerApps/${name}', '2023-05-02-preview').properties.template.containers[0].image : ''
     targetPort: targetPort
     serviceBinds: serviceBinds
   }

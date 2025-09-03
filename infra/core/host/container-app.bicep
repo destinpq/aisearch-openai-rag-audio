@@ -81,8 +81,8 @@ param targetPort int = 80
 
 param workloadProfile string = 'Consumption'
 
-resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
-  name: identityName
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: !empty(identityName) ? identityName : 'dummy-identity'
 }
 
 // Private registry support requires both an ACR name and a User Assigned managed identity
@@ -132,9 +132,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
         external: external
         targetPort: targetPort
         transport: 'auto'
-        corsPolicy: {
-          allowedOrigins: union([ 'https://portal.azure.com', 'https://ms.portal.azure.com' ], allowedOrigins)
-        }
+        corsPolicy: { allowedOrigins: union(['https://portal.azure.com', 'https://ms.portal.azure.com'], allowedOrigins), allowCredentials: true, allowedHeaders: ['*'], allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }
       } : null
       dapr: daprEnabled ? {
         enabled: true

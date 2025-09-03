@@ -35,11 +35,31 @@ export default function useAudioRecorder({ onAudioRecorded }: Parameters) {
     };
 
     const start = async () => {
-        if (!audioRecorder.current) {
-            audioRecorder.current = new Recorder(handleAudioData);
+        try {
+            if (!audioRecorder.current) {
+                audioRecorder.current = new Recorder(handleAudioData);
+            }
+
+            // Check if microphone permission is available
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Microphone access is not supported in this browser");
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioRecorder.current.start(stream);
+        } catch (error) {
+            console.error("Failed to access microphone:", error);
+            if (error instanceof DOMException) {
+                if (error.name === "NotAllowedError") {
+                    throw new Error("Microphone permission denied. Please allow microphone access and try again.");
+                } else if (error.name === "NotFoundError") {
+                    throw new Error("No microphone found. Please connect a microphone and try again.");
+                } else if (error.name === "NotReadableError") {
+                    throw new Error("Microphone is already in use by another application.");
+                }
+            }
+            throw error;
         }
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioRecorder.current.start(stream);
     };
 
     const stop = async () => {
