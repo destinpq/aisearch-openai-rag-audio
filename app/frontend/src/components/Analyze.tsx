@@ -38,7 +38,7 @@ function Analyze() {
                 requestData.filename = "user_uploaded"; // Special flag for user's PDFs
             }
 
-            const response = await axios.post("/analyze", requestData, {
+            const response = await axios.post("/api/analyze", requestData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setResults(response.data);

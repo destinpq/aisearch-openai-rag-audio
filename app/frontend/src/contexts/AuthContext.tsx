@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = async (username: string, password: string): Promise<boolean> => {
         try {
-            const response = await axios.post("/login", { username, password });
+            const response = await axios.post("/api/login", { username, password });
             const token = response.data.token;
             localStorage.setItem("token", token);
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const register = async (username: string, password: string): Promise<boolean> => {
         try {
-            await axios.post("/register", { username, password });
+            await axios.post("/api/register", { username, password });
             return true;
         } catch (error) {
             return false;

@@ -32,7 +32,10 @@ function MainApp() {
     const { logout } = useAuth();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
-        onWebSocketOpen: () => console.log("WebSocket connection opened"),
+        searchMode: voiceSearchMode,
+        onReceivedResponseDone: () => {
+            console.log("Response completed");
+        },
         onWebSocketClose: () => console.log("WebSocket connection closed"),
         onWebSocketError: event => console.error("WebSocket error:", event),
         onReceivedError: message => console.error("error", message),
@@ -46,7 +49,30 @@ function MainApp() {
             const result: ToolResult = JSON.parse(message.tool_result);
 
             const files: GroundingFile[] = result.sources.map(x => {
-                return { id: x.chunk_id, name: x.title, content: x.chunk };
+                // Find the most relevant line in the content
+                const lines = x.chunk.split("\n");
+                let highlightLine = 1;
+                let highlightText = "";
+
+                // Look for lines that might contain key information
+                // Try to find lines with substantive content (not just short phrases)
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (line.length > 20 && !line.startsWith("#") && !line.startsWith("-")) {
+                        highlightLine = i + 1;
+                        highlightText = line.substring(0, 50); // First 50 chars as highlight text
+                        break;
+                    }
+                }
+
+                return {
+                    id: x.chunk_id,
+                    name: x.title,
+                    content: x.chunk,
+                    highlightLine: highlightLine,
+                    highlightText: highlightText,
+                    searchMode: result.search_mode // Add search mode to the file
+                };
             });
 
             setGroundingFiles(prev => [...prev, ...files]);
@@ -122,53 +148,35 @@ function MainApp() {
                     {t("app.title")}
                 </h1>
 
-                {/* MASSIVE SLIDING TOGGLE BUTTON */}
-                <div className="mb-6 rounded-3xl border-4 border-purple-500 bg-white p-8 shadow-2xl">
-                    <div className="mb-6 text-center">
-                        <h3 className="text-2xl font-bold text-gray-900">🎛️ Voice Chat Search Mode</h3>
-                        <p className="text-lg text-gray-600">Choose which documents to search during voice conversations</p>
+                {/* Simple iPhone-style Toggle */}
+                <div className="mb-6 rounded-lg bg-white p-6 shadow-lg">
+                    <div className="mb-4 text-center">
+                        <h3 className="text-lg font-semibold text-gray-900">Search Mode</h3>
                     </div>
 
-                    {/* BIG SLIDING BUTTON */}
-                    <div className="flex justify-center">
-                        <div className="relative">
-                            <button
-                                onClick={() => setVoiceSearchMode(voiceSearchMode === "guarded" ? "unguarded" : "guarded")}
-                                className={`relative h-24 w-96 rounded-full border-4 shadow-xl transition-all duration-300 ease-in-out ${
-                                    voiceSearchMode === "guarded" ? "border-red-600 bg-red-400" : "border-teal-600 bg-teal-400"
+                    {/* Clean iOS-style Toggle */}
+                    <div className="flex items-center justify-center space-x-4">
+                        <span className={`text-sm font-medium ${voiceSearchMode === "guarded" ? "text-blue-600" : "text-gray-500"}`}>Your PDFs</span>
+                        <button
+                            onClick={() => setVoiceSearchMode(voiceSearchMode === "guarded" ? "unguarded" : "guarded")}
+                            className={`relative h-8 w-14 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                voiceSearchMode === "guarded" ? "bg-blue-600" : "bg-gray-300"
+                            }`}
+                        >
+                            <div
+                                className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out ${
+                                    voiceSearchMode === "guarded" ? "translate-x-1" : "translate-x-7"
                                 }`}
-                            >
-                                {/* Sliding Circle */}
-                                <div
-                                    className={`absolute top-1 flex h-20 w-20 items-center justify-center rounded-full bg-white text-3xl shadow-2xl transition-all duration-300 ease-in-out ${
-                                        voiceSearchMode === "guarded" ? "left-1 translate-x-0 transform" : "left-1 translate-x-72 transform"
-                                    }`}
-                                >
-                                    {voiceSearchMode === "guarded" ? "🔒" : "🌐"}
-                                </div>
-
-                                {/* Button Labels */}
-                                <div className="absolute inset-0 flex items-center justify-between px-8 text-xl font-bold text-white">
-                                    <span className={`transition-opacity duration-300 ${voiceSearchMode === "guarded" ? "opacity-100" : "opacity-50"}`}>
-                                        GUARDED
-                                    </span>
-                                    <span className={`transition-opacity duration-300 ${voiceSearchMode === "unguarded" ? "opacity-100" : "opacity-50"}`}>
-                                        INTERNET
-                                    </span>
-                                </div>
-                            </button>
-                        </div>
+                            />
+                        </button>
+                        <span className={`text-sm font-medium ${voiceSearchMode === "unguarded" ? "text-blue-600" : "text-gray-500"}`}>Internet</span>
                     </div>
 
-                    {/* Status Display */}
-                    <div
-                        className={`mt-6 rounded-2xl p-4 text-center text-xl font-bold ${
-                            voiceSearchMode === "guarded"
-                                ? "border-2 border-red-300 bg-red-100 text-red-700"
-                                : "border-2 border-teal-300 bg-teal-100 text-teal-700"
-                        }`}
-                    >
-                        Current Mode: {voiceSearchMode === "guarded" ? "🔒 GUARDED (Your PDFs Only)" : "🌐 INTERNET (All PDFs)"}
+                    {/* Simple status */}
+                    <div className="mt-4 text-center">
+                        <span className="text-sm text-gray-600">
+                            {voiceSearchMode === "guarded" ? "🔒 Searching your documents only" : "🌐 Searching all documents"}
+                        </span>
                     </div>
                 </div>
 

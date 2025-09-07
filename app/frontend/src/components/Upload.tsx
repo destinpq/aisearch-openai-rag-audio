@@ -23,7 +23,7 @@ function Upload() {
 
     const fetchUploadedFiles = async () => {
         try {
-            const response = await axios.get("/files", {
+            const response = await axios.get("/api/files", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUploadedFiles(response.data.files);
@@ -52,7 +52,7 @@ function Upload() {
         formData.append("file", file);
 
         try {
-            const response = await axios.post("/upload", formData, {
+            const response = await axios.post("/api/upload", formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMessage(response.data.message);

@@ -1,0 +1,365 @@
+WARNING:voicerag:CallHandler not available - Twilio functionality disabled
+INFO:voicerag:Loading environment variables from .env file
+INFO:voicerag:Realtime voice choice set to alloy
+/home/azureuser/aisearch-openai-rag-audio/app/backend/app.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:08 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '214'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'a8dcb560-8ba1-11f0-8301-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'a8dcb560-8ba1-11f0-8301-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:09 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:08 +0000] "POST /api/analyze HTTP/1.1" 200 237 "-" "curl/8.5.0"
+/home/azureuser/aisearch-openai-rag-audio/app/backend/app.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:17 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '242'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'ae3d1c7d-8ba1-11f0-863a-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'ae3d1c7d-8ba1-11f0-863a-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:17 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:17 +0000] "POST /api/analyze HTTP/1.1" 200 251 "-" "curl/8.5.0"
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:27 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '214'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'b4348162-8ba1-11f0-be41-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'b4348162-8ba1-11f0-be41-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:27 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:27 +0000] "POST /api/analyze HTTP/1.1" 200 6133 "-" "curl/8.5.0"
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:38 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '266'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'baafb311-8ba1-11f0-a547-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'baafb311-8ba1-11f0-a547-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:38 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:38 +0000] "POST /api/analyze HTTP/1.1" 200 264 "-" "curl/8.5.0"
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:46 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '216'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'bfb8c78d-8ba1-11f0-8b01-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'bfb8c78d-8ba1-11f0-8b01-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:47 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:47 +0000] "POST /api/analyze HTTP/1.1" 200 238 "-" "curl/8.5.0"
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:54 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '210'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': 'c434f913-8ba1-11f0-a8ec-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': 'c434f913-8ba1-11f0-a8ec-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:18:54 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:18:54 +0000] "POST /api/analyze HTTP/1.1" 200 8681 "-" "curl/8.5.0"
+======== Running on http://0.0.0.0:8765 ========
+(Press CTRL+C to quit)
+WARNING:voicerag:CallHandler not available - Twilio functionality disabled
+INFO:voicerag:Loading environment variables from .env file
+INFO:voicerag:Realtime voice choice set to alloy
+/home/azureuser/aisearch-openai-rag-audio/app/backend/app.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:20:55 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:voicerag.document_indexer:Processing document: Destin Pq Image Generation Api — Quick Start & Reference.pdf
+INFO:voicerag.pdf_processor:Extracting text from PDF with 7 pages
+INFO:voicerag.pdf_processor:Successfully extracted 7634 characters from PDF
+INFO:voicerag.pdf_processor:Creating chunks using direct chunking method...
+INFO:voicerag.document_indexer:Created 5 chunks for Destin Pq Image Generation Api — Quick Start & Reference.pdf
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: DestinPQ Image Generation API — Quick Start &
+Refe...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: "raw": true,
+"input_data": {
+"prompt": "create an ...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: headers: { 'Content-Type': 'application/json' }
+//...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: r.raise_for_status()
+created = r.json()
+# Poll
+tas...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: present.
+• File extension: Save with .png / .jpg t...
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '163679'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': '0e0d021a-8ba2-11f0-8328-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Content-Length': '263'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'request-id': '0e0d021a-8ba2-11f0-8328-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:20:59 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () The request is invalid. Details: The property 'filename' does not exist on type 'search.documentFields' or is not present in the API version '2024-05-01-preview'. Make sure to only use property names that are defined by the type.
+Code: 
+Message: The request is invalid. Details: The property 'filename' does not exist on type 'search.documentFields' or is not present in the API version '2024-05-01-preview'. Make sure to only use property names that are defined by the type.
+INFO:voicerag.document_indexer:Using local storage as fallback
+INFO:voicerag.document_indexer:Successfully stored 5 chunks in local storage
+INFO:voicerag:Indexed Destin Pq Image Generation Api — Quick Start & Reference.pdf: True
+INFO:voicerag.document_indexer:Processing document: BusinessPlan.pdf
+INFO:voicerag.pdf_processor:Extracting text from PDF with 9 pages
+INFO:voicerag.pdf_processor:Successfully extracted 17320 characters from PDF
+INFO:voicerag.pdf_processor:Creating chunks using direct chunking method...
+INFO:voicerag.document_indexer:Created 6 chunks for BusinessPlan.pdf
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: DestinPQ Video — Investor Business Plan
+Company: D...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: drop scheduling; CRM for cohorts, churn alerts, an...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: • Recommendation engine; district‑level school pil...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: • Avg monthly fee: ₹2,000 → ₹3,000
+• Parents (micr...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: Payout schedules that align with cash receipts; fa...
+INFO:httpx:HTTP Request: POST https://cog-6hlzm3pfyejvk.openai.azure.com//openai/deployments/text-embedding-ada-002/embeddings?api-version=2023-05-15 "HTTP/1.1 404 DeploymentNotFound"
+ERROR:voicerag.document_indexer:Failed to generate embedding: Error code: 404 - {'error': {'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}
+INFO:voicerag.document_indexer:Using fallback embedding for text: • Safety: Incident rate, Takedown SLAs, Appeals re...
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.index?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '205739'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': '10a6110d-8ba2-11f0-8900-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Content-Length': '263'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Preference-Applied': 'REDACTED'
+    'request-id': '10a6110d-8ba2-11f0-8900-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:21:03 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () The request is invalid. Details: The property 'filename' does not exist on type 'search.documentFields' or is not present in the API version '2024-05-01-preview'. Make sure to only use property names that are defined by the type.
+Code: 
+Message: The request is invalid. Details: The property 'filename' does not exist on type 'search.documentFields' or is not present in the API version '2024-05-01-preview'. Make sure to only use property names that are defined by the type.
+INFO:voicerag.document_indexer:Using local storage as fallback
+INFO:voicerag.document_indexer:Successfully stored 6 chunks in local storage
+INFO:voicerag:Indexed BusinessPlan.pdf: True
+INFO:voicerag.document_indexer:Processing document: Concepts-of-Physics-By-H-C-Verma.pdf
+INFO:voicerag.pdf_processor:Extracting text from PDF with 80 pages
+INFO:voicerag.pdf_processor:Processed 10/80 pages
+INFO:voicerag.pdf_processor:Processed 20/80 pages
+INFO:voicerag.pdf_processor:Processed 30/80 pages
+INFO:voicerag.pdf_processor:Processed 40/80 pages
+INFO:voicerag.pdf_processor:Processed 50/80 pages
+INFO:voicerag.pdf_processor:Processed 60/80 pages
+INFO:voicerag.pdf_processor:Processed 70/80 pages
+INFO:voicerag.pdf_processor:Little to no text found, attempting OCR extraction...
+INFO:voicerag.pdf_processor:Starting concurrent OCR extraction for ALL pages...
+INFO:voicerag.pdf_processor:Converting ALL 80 pages to images for concurrent OCR
+INFO:voicerag.pdf_processor:Processing 80 pages with 4 concurrent workers...
+INFO:voicerag.pdf_processor:Completed OCR for page 1/80
+INFO:voicerag.pdf_processor:Completed OCR for page 3/80
+WARNING:voicerag:CallHandler not available - Twilio functionality disabled
+INFO:voicerag:Loading environment variables from .env file
+INFO:voicerag:Realtime voice choice set to alloy
+/home/azureuser/aisearch-openai-rag-audio/app/backend/app.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:27:12 +0000] "POST /api/login HTTP/1.1" 200 409 "-" "curl/8.5.0"
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:28:38 +0000] "POST /api/documents/search HTTP/1.1" 405 208 "-" "curl/8.5.0"
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'https://srch-6hlzm3pfyejvk.search.windows.net/indexes('voicerag-intvect')/docs/search.post.search?api-version=REDACTED'
+Request method: 'POST'
+Request headers:
+    'Content-Type': 'application/json'
+    'Content-Length': '306'
+    'api-key': 'REDACTED'
+    'Accept': 'application/json;odata.metadata=none'
+    'x-ms-client-request-id': '3e8efba0-8ba3-11f0-bc3f-002248d50cae'
+    'User-Agent': 'azsdk-python-search-documents/11.6.0b4 Python/3.12.3 (Linux-6.11.0-1018-azure-x86_64-with-glibc2.39)'
+A body is sent with the request
+INFO:azure.core.pipeline.policies.http_logging_policy:Response status: 400
+Response headers:
+    'Cache-Control': 'no-cache,no-store'
+    'Pragma': 'no-cache'
+    'Content-Length': '150'
+    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Language': 'REDACTED'
+    'Expires': '-1'
+    'request-id': '3e8efba0-8ba3-11f0-bc3f-002248d50cae'
+    'elapsed-time': 'REDACTED'
+    'Strict-Transport-Security': 'REDACTED'
+    'Date': 'Sun, 07 Sep 2025 04:29:30 GMT'
+ERROR:voicerag.document_indexer:Azure Search failed: () Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+Code: 
+Message: Invalid expression: Could not find a property named 'filename' on type 'search.document'.
+Parameter name: $select
+INFO:voicerag.document_indexer:Using local storage for search
+INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:04:29:29 +0000] "POST /api/analyze HTTP/1.1" 200 270 "-" "curl/8.5.0"
+ERROR:aiohttp.server:Error handling request
+Traceback (most recent call last):
+  File "/home/azureuser/.local/lib/python3.12/site-packages/aiohttp/web_protocol.py", line 452, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/azureuser/.local/lib/python3.12/site-packages/aiohttp/web_app.py", line 543, in _handle
+    resp = await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/azureuser/aisearch-openai-rag-audio/app/backend/app.py", line 160, in upload_pdf
+    upload_dir = Path(__file__).parent / 'uploads' / user_id
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'PosixPath' and 'int'
+======== Running on http://0.0.0.0:8765 ========
+(Press CTRL+C to quit)

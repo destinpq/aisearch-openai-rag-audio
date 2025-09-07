@@ -1,0 +1,1 @@
+Bernoulli's equation: P + 1/2*ρ*v² + ρ*g*h = constant. This fundamental principle in fluid dynamics describes the relationship between pressure, velocity, and height in a flowing fluid.
