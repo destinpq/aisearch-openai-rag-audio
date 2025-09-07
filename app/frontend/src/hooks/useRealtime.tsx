@@ -17,6 +17,7 @@ type Parameters = {
     aoaiEndpointOverride?: string;
     aoaiApiKeyOverride?: string;
     aoaiModelOverride?: string;
+    searchMode?: "guarded" | "unguarded"; // Search mode for RAG functionality
 
     enableInputAudioTranscription?: boolean;
     onWebSocketOpen?: () => void;
@@ -38,6 +39,7 @@ export default function useRealTime({
     aoaiEndpointOverride,
     aoaiApiKeyOverride,
     aoaiModelOverride,
+    searchMode,
     enableInputAudioTranscription,
     onWebSocketOpen,
     onWebSocketClose,
@@ -62,11 +64,11 @@ export default function useRealTime({
         // Production environment with custom domain - use production WebSocket
         const wsProtocol = apiUrl?.startsWith("https") ? "wss:" : "ws:";
         const wsHost = apiUrl ? new URL(apiUrl).host : window.location.host;
-        wsEndpoint = `${wsProtocol}//${wsHost}/realtime`;
+        wsEndpoint = `${wsProtocol}//${wsHost}/realtime${searchMode ? `?mode=${searchMode}` : ""}`;
     } else {
         // Use same host as current page for WebSocket
         const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        wsEndpoint = `${wsProtocol}//${window.location.host}/realtime`;
+        wsEndpoint = `${wsProtocol}//${window.location.host}/realtime${searchMode ? `?mode=${searchMode}` : ""}`;
     }
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {

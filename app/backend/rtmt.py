@@ -29,7 +29,7 @@ class ToolResult:
         return self.text if type(self.text) == str else json.dumps(self.text)
 
 class Tool:
-    target: Callable[..., ToolResult]
+    target: Callable[..., Any]  # Can return ToolResult or Coroutine[Any, Any, ToolResult]
     schema: Any
 
     def __init__(self, target: Any, schema: Any):
@@ -118,7 +118,7 @@ class RTMiddleTier:
                         tool_call = self._tools_pending[message["item"]["call_id"]]
                         tool = self.tools[item["name"]]
                         args = item["arguments"]
-                        result = await tool.target(json.loads(args))
+                        result = await tool.target(json.loads(args), client_ws)
                         await server_ws.send_json({
                             "type": "conversation.item.create",
                             "item": {
@@ -219,7 +219,29 @@ class RTMiddleTier:
                     pass
 
     async def _websocket_handler(self, request: web.Request):
+        # Extract search mode from query parameters
+        search_mode = request.query.get('mode', 'unguarded')  # Default to unguarded
+        
+        # Extract user_id from Authorization header if present
+        user_id = None
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                token = auth_header.split(' ')[1]
+                # Import here to avoid circular imports
+                import jwt
+                import os
+                jwt_secret = os.environ.get("JWT_SECRET", "your-secret-key")
+                payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+                user_id = payload.get('user_id')
+            except Exception as e:
+                print(f"Error decoding JWT: {e}")
+                pass  # Invalid token, proceed without user_id
+        
+        # Store the search mode and user_id for this session
         ws = web.WebSocketResponse()
+        ws.search_mode = search_mode
+        ws.user_id = user_id
         await ws.prepare(request)
         await self._forward_messages(ws)
         return ws

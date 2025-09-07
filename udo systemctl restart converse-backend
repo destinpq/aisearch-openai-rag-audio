@@ -1,0 +1,20 @@
+[0;1;32m●[0m converse-backend.service - Converse AI Backend Service
+     Loaded: loaded (]8;;file://rag-chat-1/etc/systemd/system/converse-backend.service/etc/systemd/system/converse-backend.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Sun 2025-09-07 03:56:06 UTC; 2h 49min ago
+   Main PID: 2719978 (python)
+      Tasks: 5 (limit: 19108)
+     Memory: 42.6M (peak: 44.4M)
+        CPU: 500ms
+     CGroup: /system.slice/converse-backend.service
+             └─[0;38;5;245m2719978 /home/azureuser/aisearch-openai-rag-audio/.venv/bin/python app_simple.py[0m
+
+Sep 07 06:32:32 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:32:32 +0000] "GET /assets/index-Cv-Sd5hI.js.map HTTP/1.0" 200 257 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+Sep 07 06:32:34 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:32:34 +0000] "GET / HTTP/1.0" 200 235 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+Sep 07 06:32:34 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:32:34 +0000] "GET /assets/index-Cv-Sd5hI.js.map HTTP/1.0" 200 257 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+Sep 07 06:32:36 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:32:21 +0000] "GET /realtime HTTP/1.1" 101 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+Sep 07 06:32:39 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:32:39 +0000] "POST /api/login HTTP/1.1" 401 204 "https://converse.destinpq.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+Sep 07 06:36:34 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:36:34 +0000] "GET / HTTP/1.1" 200 235 "http://74.225.252.143/" "Mozilla/5.0 (compatible; ModatScanner/1.1; +https://modat.io/)"
+Sep 07 06:38:31 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:38:31 +0000] "GET / HTTP/1.1" 200 235 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"
+Sep 07 06:38:34 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:38:34 +0000] "GET /favicon.ico HTTP/1.1" 200 252 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"
+Sep 07 06:39:04 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:39:04 +0000] "GET /security.txt HTTP/1.1" 404 173 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"
+Sep 07 06:43:51 rag-chat-1 converse-backend[2719978]: INFO:aiohttp.access:127.0.0.1 [07/Sep/2025:06:43:51 +0000] "POST /api/login HTTP/1.1" 401 204 "-" "curl/8.5.0"
