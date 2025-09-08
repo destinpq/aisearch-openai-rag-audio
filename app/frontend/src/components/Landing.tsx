@@ -75,20 +75,6 @@ function Landing() {
                     <p className="text-gray-500">Experience the future of AI-powered conversations with voice interaction and knowledge retrieval.</p>
                 </div>
 
-                {/* Demo Video Section */}
-                <div className="rounded-lg bg-white p-6 shadow-lg">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">See VoiceRAG in Action</h3>
-                    <div className="relative overflow-hidden rounded-lg" style={{ paddingBottom: "56.25%", height: 0 }}>
-                        <iframe
-                            src="https://www.loom.com/embed/d0d6f1c4906042fdb8959ef8285a7fc4?sid=cf26fd78-23dd-4adc-9a17-6b1330b1bd6f"
-                            frameBorder="0"
-                            allowFullScreen
-                            className="absolute left-0 top-0 h-full w-full"
-                            title="VoiceRAG Demo Video"
-                        ></iframe>
-                    </div>
-                </div>
-
                 <div className="space-y-4">
                     <Link to="/login" state={{ searchMode }}>
                         <Button className="w-full">Get Started</Button>
