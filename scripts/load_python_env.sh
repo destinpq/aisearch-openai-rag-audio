@@ -1,7 +1,13 @@
- #!/bin/sh
+ #!/bin/bash
 
-echo 'Creating Python virtual environment "app/backend/.venv"...'
-python3 -m venv .venv
+# Check if virtual environment exists, create if it doesn't
+if [ ! -d ".venv" ]; then
+    echo 'Creating Python virtual environment ".venv"...'
+    python3 -m venv .venv
+fi
+
+echo 'Activating virtual environment...'
+source .venv/bin/activate
 
 echo 'Installing dependencies from "requirements.txt" into virtual environment (in quiet mode)...'
-.venv/bin/python -m pip --quiet --disable-pip-version-check install -r app/backend/requirements.txt
+python -m pip --quiet --disable-pip-version-check install -r app/backend/requirements.txt

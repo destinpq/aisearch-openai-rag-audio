@@ -13,7 +13,7 @@ export PORT=80
 
 # Load Python environment
 echo "📦 Loading Python environment..."
-. ./scripts/load_python_env.sh
+source ./scripts/load_python_env.sh
 
 # Install/update Python dependencies
 echo "🔧 Installing Python dependencies..."

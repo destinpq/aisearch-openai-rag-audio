@@ -15,6 +15,12 @@ export PORT=8765
 # Navigate to project directory
 cd /home/azureuser/aisearch-openai-rag-audio
 
+# Activate virtual environment
+if [ -f ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+    echo "🐍 Using virtual environment"
+fi
+
 # Kill any existing processes on port 8765
 echo "🔄 Stopping any existing processes on port 8765..."
 lsof -ti :8765 | xargs -r kill -9
@@ -28,7 +34,7 @@ echo "  converse.destinpq.com → localhost:8765"
 echo ""
 
 # Start server in background with logging
-nohup python3 app/backend/app.py > production.log 2>&1 &
+nohup python app/backend/app.py > production.log 2>&1 &
 SERVER_PID=$!
 
 echo "✅ Server started with PID: $SERVER_PID"
