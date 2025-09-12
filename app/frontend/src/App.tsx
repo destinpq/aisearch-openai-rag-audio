@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { ConfigProvider, theme } from "antd";
 import { Mic, MicOff, UploadIcon, Search, LogOut, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -15,11 +16,12 @@ import useAudioPlayer from "@/hooks/useAudioPlayer";
 import { GroundingFile, ToolResult } from "./types";
 import { useAuth } from "./contexts/AuthContext";
 import Landing from "./components/Landing";
-import Login from "./components/Login";
+import LoginAntd from "./components/LoginAntd";
 import Register from "./components/Register";
 import Upload from "./components/Upload";
 import Analyze from "./components/Analyze";
 import CallInterface from "./components/CallInterface";
+import EnhancedPDFProcessor from "./components/EnhancedPDFProcessor";
 
 import logo from "./assets/logo.svg";
 
@@ -227,16 +229,31 @@ function MainApp() {
 function App() {
     const { isAuthenticated } = useAuth();
 
+    const themeConfig = {
+        algorithm: theme.defaultAlgorithm,
+        token: {
+            colorPrimary: "#6366f1",
+            colorSuccess: "#10b981",
+            colorWarning: "#f59e0b",
+            colorError: "#ef4444",
+            borderRadius: 8
+        }
+    };
+
     return (
-        <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/login" />} />
-            <Route path="/analyze" element={isAuthenticated ? <Analyze /> : <Navigate to="/login" />} />
-            <Route path="/call" element={isAuthenticated ? <CallInterface /> : <Navigate to="/login" />} />
-            <Route path="/app" element={isAuthenticated ? <MainApp /> : <Navigate to="/login" />} />
-        </Routes>
+        <ConfigProvider theme={themeConfig}>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<LoginAntd />} />
+                <Route path="/landing" element={<Landing />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/login" />} />
+                <Route path="/analyze" element={isAuthenticated ? <Analyze /> : <Navigate to="/login" />} />
+                <Route path="/enhanced-pdf" element={isAuthenticated ? <EnhancedPDFProcessor /> : <Navigate to="/login" />} />
+                <Route path="/call" element={isAuthenticated ? <CallInterface /> : <Navigate to="/login" />} />
+                <Route path="/app" element={isAuthenticated ? <MainApp /> : <Navigate to="/login" />} />
+            </Routes>
+        </ConfigProvider>
     );
 }
 

@@ -19,6 +19,91 @@ from database import db
 from rtmt import RTMiddleTier
 from ragtools import attach_rag_tools
 from document_indexer import get_document_indexer
+from enhanced_pdf_api import EnhancedPDFAPI
+from user_manager import user_manager
+from auth_middleware import auth_middleware, require_auth, require_service, require_tier, service_access
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("voicerag")
+
+try:
+    from call_handler import CallHandler
+    CALL_HANDLER_AVAILABLE = True
+except ImportError:
+    CALL_HANDLER_AVAILABLE = False
+    logger.warning("CallHandler not available - Twilio functionality disabled")
+
+# Simple in-memory user store for demo
+users: Dict[str, Dict[str, Any]] = {
+    "admin": {"password": bcrypt.hash("admin"), "role": "admin"},
+    "demo@example.com": {"password": bcrypt.hash("Akanksha100991!"), "role": "user"},
+    "test@example.com": {"password": bcrypt.hash("test123"), "role": "user"}
+}
+
+JWT_SECRET = os.environ.get("JWT_SECRET", "your-secret-key")
+JWT_EXP_DELTA_SECONDS = 3600
+
+# Modern Authentication System using user_manager
+
+async def register(request):
+    """Register new user with service-based system"""
+    try:
+        data = await request.json()
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name', email.split('@')[0] if email else 'User')
+        subscription_tier = data.get('subscription_tier', 'free')
+        
+        if not email or not password:
+            return web.json_response({
+                'error': 'Email and password required',
+                'code': 'MISSING_FIELDS'
+            }, status=400)
+        
+        # Create user with service-based system
+        result = user_manager.create_user(email, password, name, subscription_tier)
+        
+        if not result['success']:
+            return web.json_response({
+                'error': result['error'],
+                'code': 'REGISTRATION_FAILED'
+            }, status=400)
+        
+        # Get user info for response
+        user_info = result['user']
+        
+        return web.json_response({
+            'message': 'User registered successfully',
+            'user': {
+                'id': user_info['id'],
+                'email': user_info['email'],
+                'name': user_info['name'],
+                'subscription_tier': user_info['subscription_tier'],
+                'credits_remaining': user_info['credits_remaining']
+            },
+            'token': result['token']
+        })
+        
+    except Exception as e:
+        logger.error(f"Registration error: {e}")
+        return web.json_response({
+            'error': 'Registration failed',
+            'code': 'SERVER_ERROR'
+        }, status=500)
+from passlib.hash import bcrypt
+import bcrypt as bcrypt_lib
+import jwt
+from azure.core.credentials import AzureKeyCredential
+from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
+from dotenv import load_dotenv
+
+from database import db
+from rtmt import RTMiddleTier
+from ragtools import attach_rag_tools
+from document_indexer import get_document_indexer
+from enhanced_pdf_api import EnhancedPDFAPI
+from user_manager import user_manager
+from auth_middleware import auth_middleware, require_auth, require_service, require_tier, service_access
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("voicerag")
@@ -82,52 +167,48 @@ async def options_handler(request):
     )
 
 async def login(request):
+    """Login user with service-based authentication"""
     try:
         data = await request.json()
-        username = data.get('username')
+        email = data.get('email') or data.get('username')  # Support both fields
         password = data.get('password')
         
-        # Try database authentication first
-        user = db.authenticate_user(username, password)
-        if user:
-            token = db.generate_jwt_token(user)
+        if not email or not password:
             return web.json_response({
-                'token': token,
-                'user': {
-                    'id': user.id,
-                    'email': user.email,
-                    'name': user.name,
-                    'role': 'user'  # Default role for now
-                }
-            })
+                'error': 'Email and password required',
+                'code': 'MISSING_FIELDS'
+            }, status=400)
         
-        # Fallback to in-memory users for testing
-        if username in users and bcrypt_lib.checkpw(password.encode('utf-8'), users[username]['password'].encode('utf-8')):
-            # Create a mock user object for in-memory users
-            from types import SimpleNamespace
-            mock_user = SimpleNamespace()
-            mock_user.id = 1
-            mock_user.email = username
-            mock_user.name = username.split('@')[0] if '@' in username else username
-            
-            # Generate JWT token manually for in-memory users
-            import datetime
-            payload = {
-                'user_id': mock_user.id,
-                'email': mock_user.email,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
-            }
-            token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
-            
+        # Authenticate using service-based system
+        result = user_manager.authenticate_user(email, password)
+        
+        if not result['success']:
             return web.json_response({
-                'token': token,
-                'user': {
-                    'id': mock_user.id,
-                    'email': mock_user.email,
-                    'name': mock_user.name,
-                    'role': users[username]['role']
-                }
-            })
+                'error': result['error'],
+                'code': 'AUTH_FAILED'
+            }, status=401)
+        
+        user_info = result['user']
+        
+        return web.json_response({
+            'token': result['token'],
+            'user': {
+                'id': user_info['id'],
+                'email': user_info['email'],
+                'name': user_info['name'],
+                'subscription_tier': user_info['subscription_tier'],
+                'credits_remaining': user_info['credits_remaining'],
+                'role': 'user'
+            },
+            'services': user_info.get('services', [])
+        })
+        
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        return web.json_response({
+            'error': 'Login failed',
+            'code': 'SERVER_ERROR'
+        }, status=500)
         
         return web.json_response({'error': 'Invalid credentials'}, status=401)
     except Exception as e:
@@ -541,7 +622,12 @@ async def create_app():
     llm_credential = AzureKeyCredential(llm_key) if llm_key else credential
     search_credential = AzureKeyCredential(search_key) if search_key else credential
     
-    app = web.Application()
+    # Create app with auth middleware
+    app = web.Application(middlewares=[auth_middleware])
+
+    # Initialize user management system
+    logger.info("User management system ready")
+    # Database is already initialized via database_init.py
 
     # Initialize call handler for phone calling functionality (if available)
     call_handler = None
@@ -576,6 +662,12 @@ async def create_app():
         use_vector_query=(os.getenv("AZURE_SEARCH_USE_VECTOR_QUERY", "true") == "true")
         )
 
+    # Initialize Enhanced PDF API
+    enhanced_pdf_api = EnhancedPDFAPI(
+        azure_search_client=None,  # You can pass the search client here if needed
+        openai_client=None  # You can pass the OpenAI client here if needed
+    )
+
     # Setup CORS - allow production domains and localhost for testing
     cors_origins = {
         "https://converse.destinpq.com": ResourceOptions(
@@ -606,7 +698,35 @@ async def create_app():
             )
         })
     
-    cors = setup_cors(app, defaults=cors_origins)
+    # Configure CORS for existing frontend at converse.destinpq.com
+    cors_config = {
+        "https://converse.destinpq.com": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        ),
+        "https://destinpq.com": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        ),
+        "http://localhost:52047": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        ),
+        "http://localhost:3000": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        )
+    }
+    
+    cors = setup_cors(app, defaults=cors_config)
 
     # Health check endpoint
     async def health_check(request):
@@ -615,12 +735,40 @@ async def create_app():
     cors.add(app.router.add_get('/health', health_check))
     cors.add(app.router.add_get('/api/health', health_check))
 
-    # Auth routes with CORS
+    # Import service endpoints
+    from service_endpoints import (
+        get_user_profile, upgrade_subscription, get_subscription_tiers,
+        get_user_usage_stats, add_user_credits, enhanced_pdf_upload,
+        enhanced_pdf_search, ai_enhanced_analysis, pdf_line_seeking
+    )
+    # Frontend components removed - using existing frontend at converse.destinpq.com
+
+    # Auth routes with CORS (existing frontend at converse.destinpq.com)
     cors.add(app.router.add_post('/api/login', login))
     cors.add(app.router.add_post('/api/register', register))
+    
+    # User management routes
+    cors.add(app.router.add_get('/api/profile', get_user_profile))
+    cors.add(app.router.add_post('/api/upgrade', upgrade_subscription))
+    cors.add(app.router.add_get('/api/tiers', get_subscription_tiers))
+    cors.add(app.router.add_get('/api/usage-stats', get_user_usage_stats))
+    cors.add(app.router.add_post('/api/add-credits', add_user_credits))
+    
+    # Service-protected PDF routes
+    cors.add(app.router.add_post('/api/pdf/upload', enhanced_pdf_upload))
+    cors.add(app.router.add_post('/api/pdf/search', enhanced_pdf_search))
+    cors.add(app.router.add_post('/api/pdf/ai-analysis', ai_enhanced_analysis))
+    cors.add(app.router.add_post('/api/pdf/line-seek', pdf_line_seeking))
+    
+    # Legacy routes (keep for backward compatibility but add service protection)
     cors.add(app.router.add_post('/api/upload', upload_pdf))
     cors.add(app.router.add_post('/api/analyze', analyze_pdf))
     cors.add(app.router.add_get('/api/files', list_files))
+    
+    # Original Enhanced PDF API routes (for testing/admin)
+    cors.add(app.router.add_get('/api/pdf/document/{doc_id}', enhanced_pdf_api.get_document_info))
+    cors.add(app.router.add_get('/api/pdf/token/{token_id}', enhanced_pdf_api.get_token_details))
+    cors.add(app.router.add_get('/api/pdf/images/{doc_id}', enhanced_pdf_api.get_image_analysis))
     cors.add(app.router.add_get('/api/indexed-pdfs', list_indexed_pdfs))
     cors.add(app.router.add_post('/api/index-existing', index_existing_files))
     
@@ -707,6 +855,31 @@ async def create_app():
     return app
 
 if __name__ == "__main__":
-    host = "0.0.0.0"
-    port = int(os.environ.get("PORT", 52047))
+    # Development vs Production configuration
+    is_production = os.environ.get("PRODUCTION", "false").lower() == "true"
+    
+    if is_production:
+        # Production configuration
+        from production_config import ProductionConfig
+        
+        try:
+            ProductionConfig.validate_production_config()
+            host = ProductionConfig.HOST
+            port = ProductionConfig.PORT
+            
+            logger.info(f"🚀 Starting production server at {ProductionConfig.BASE_URL}")
+            logger.info(f"🌐 Frontend URL: {ProductionConfig.FRONTEND_URL}")
+            
+        except ValueError as e:
+            logger.error(f"❌ Production configuration error: {e}")
+            logger.info("💡 Set required environment variables for production deployment")
+            exit(1)
+    else:
+        # Development configuration
+        host = "0.0.0.0"
+        port = int(os.environ.get("PORT", 52047))
+        
+        logger.info(f"🔧 Starting development server at http://{host}:{port}")
+        logger.info("💡 For production deployment, set PRODUCTION=true and required env vars")
+    
     web.run_app(create_app(), host=host, port=port)
