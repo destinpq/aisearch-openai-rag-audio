@@ -1,32 +1,43 @@
-import { useState, useEffect } from "react";
-import { MessageSquare, FileText, Settings, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { ConfigProvider, theme } from "antd";
+import { Mic, MicOff, UploadIcon, Search, LogOut, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { Button } from "@/components/ui/button";
+import { GroundingFiles } from "@/components/ui/grounding-files";
 import GroundingFileView from "@/components/ui/grounding-file-view";
-import InternetSpeedIndicator from "@/components/ui/internet-speed-indicator";
-import { IndexedDocuments } from "@/components/ui/indexed-documents";
-import { ConversationInterface } from "@/components/ui/conversation-interface";
-import { SettingsPage } from "@/components/ui/settings-page";
-import { PDFUploader } from "@/components/documents/PDFUploader";
-import { PendingJobs } from "@/components/documents/PendingJobs";
-import { TabNavigation } from "@/components/ui/tab-navigation";
+import StatusMessage from "@/components/ui/status-message";
 
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
 import useAudioPlayer from "@/hooks/useAudioPlayer";
 
 import { GroundingFile, ToolResult } from "./types";
+import { useAuth } from "./contexts/AuthContext";
+import Landing from "./components/Landing";
+import LoginAntd from "./components/LoginAntd";
+import Register from "./components/Register";
+import Upload from "./components/Upload";
+import Analyze from "./components/Analyze";
+import CallInterface from "./components/CallInterface";
+import EnhancedPDFProcessor from "./components/EnhancedPDFProcessor";
 
-function App() {
-    const [activeTab, setActiveTab] = useState("conversation");
-    const [activeDocumentTab, setActiveDocumentTab] = useState("search");
+import logo from "./assets/logo.svg";
+
+function MainApp() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [audioError, setAudioError] = useState<string | null>(null);
+    const [voiceSearchMode, setVoiceSearchMode] = useState<"guarded" | "unguarded">("guarded");
+    const { logout } = useAuth();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
-        onWebSocketOpen: () => console.log("WebSocket connection opened"),
+        searchMode: voiceSearchMode,
+        onReceivedResponseDone: () => {
+            console.log("Response completed");
+        },
         onWebSocketClose: () => console.log("WebSocket connection closed"),
         onWebSocketError: event => console.error("WebSocket error:", event),
         onReceivedError: message => console.error("error", message),
@@ -40,7 +51,30 @@ function App() {
             const result: ToolResult = JSON.parse(message.tool_result);
 
             const files: GroundingFile[] = result.sources.map(x => {
-                return { id: x.chunk_id, name: x.title, content: x.chunk };
+                // Find the most relevant line in the content
+                const lines = x.chunk.split("\n");
+                let highlightLine = 1;
+                let highlightText = "";
+
+                // Look for lines that might contain key information
+                // Try to find lines with substantive content (not just short phrases)
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (line.length > 20 && !line.startsWith("#") && !line.startsWith("-")) {
+                        highlightLine = i + 1;
+                        highlightText = line.substring(0, 50); // First 50 chars as highlight text
+                        break;
+                    }
+                }
+
+                return {
+                    id: x.chunk_id,
+                    name: x.title,
+                    content: x.chunk,
+                    highlightLine: highlightLine,
+                    highlightText: highlightText,
+                    searchMode: result.search_mode // Add search mode to the file
+                };
             });
 
             setGroundingFiles(prev => [...prev, ...files]);
@@ -52,205 +86,174 @@ function App() {
 
     const onToggleListening = async () => {
         if (!isRecording) {
-            startSession();
-            await startAudioRecording();
-            resetAudioPlayer();
-
-            setIsRecording(true);
+            try {
+                setAudioError(null); // Clear any previous errors
+                startSession();
+                await startAudioRecording();
+                resetAudioPlayer();
+                setIsRecording(true);
+            } catch (error) {
+                console.error("Failed to start recording:", error);
+                setAudioError(error instanceof Error ? error.message : "Failed to access microphone");
+                setIsRecording(false);
+            }
         } else {
-            await stopAudioRecording();
-            stopAudioPlayer();
-            inputAudioBufferClear();
-
-            setIsRecording(false);
+            try {
+                await stopAudioRecording();
+                stopAudioPlayer();
+                inputAudioBufferClear();
+                setIsRecording(false);
+                setAudioError(null);
+            } catch (error) {
+                console.error("Failed to stop recording:", error);
+                setIsRecording(false);
+            }
         }
     };
 
-    // Close mobile menu when changing tabs
-    useEffect(() => {
-        setMobileMenuOpen(false);
-    }, [activeTab]);
-
     const { t } = useTranslation();
 
-    const tabs = [
-        { id: "conversation", label: t("tabs.conversation"), icon: <MessageSquare className="h-5 w-5" /> },
-        { id: "documents", label: t("tabs.documents"), icon: <FileText className="h-5 w-5" /> },
-        { id: "settings", label: t("tabs.settings"), icon: <Settings className="h-5 w-5" /> }
-    ];
-
     return (
-        <div className="flex h-screen bg-background text-foreground">
-            {/* Desktop Sidebar */}
-            <div className="hidden md:flex md:w-64 md:flex-col">
-                <div className="flex flex-col flex-grow border-r border-border bg-card pt-5 pb-4 overflow-y-auto">
-                    <div className="flex items-center flex-shrink-0 px-4">
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            {t("app.title")}
-                            <span className="block text-xs font-normal text-muted-foreground">By DestinPQ</span>
-                        </h1>
-                    </div>
-                    <div className="mt-5 flex-grow flex flex-col">
-                        <nav className="flex-1 px-2 space-y-1">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`group flex items-center px-2 py-3 text-sm font-medium rounded-md w-full ${
-                                        activeTab === tab.id
-                                            ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                    }`}
-                                >
-                                    <div className={`mr-3 ${
-                                        activeTab === tab.id ? "text-purple-500 dark:text-purple-400" : "text-muted-foreground group-hover:text-foreground"
-                                    }`}>
-                                        {tab.icon}
-                                    </div>
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </nav>
-                    </div>
+        <div className="flex min-h-screen flex-col bg-gray-100 text-gray-900">
+            <header className="flex items-center justify-between bg-white p-4 shadow">
+                <div className="flex items-center space-x-4">
+                    <img src={logo} alt="Azure logo" className="h-8 w-8" />
+                    <span className="font-bold">VoiceRAG</span>
                 </div>
-            </div>
+                <nav className="flex space-x-4">
+                    <Link to="/upload">
+                        <Button variant="outline" size="sm">
+                            <UploadIcon className="mr-2 h-4 w-4" />
+                            Upload
+                        </Button>
+                    </Link>
+                    <Link to="/analyze">
+                        <Button variant="outline" size="sm">
+                            <Search className="mr-2 h-4 w-4" />
+                            Analyze
+                        </Button>
+                    </Link>
+                    <Link to="/call">
+                        <Button variant="outline" size="sm">
+                            <Phone className="mr-2 h-4 w-4" />
+                            Call
+                        </Button>
+                    </Link>
+                    <Button variant="outline" size="sm" onClick={logout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                    </Button>
+                </nav>
+            </header>
+            <main className="flex flex-grow flex-col items-center justify-center">
+                <h1 className="mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent md:text-7xl">
+                    {t("app.title")}
+                </h1>
 
-            {/* Mobile Sidebar (Drawer) */}
-            <div className={`fixed inset-0 z-40 md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
-                {/* Backdrop */}
-                <div 
-                    className="fixed inset-0 bg-black/50 transition-opacity" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    aria-hidden="true"
-                ></div>
-                
-                {/* Drawer panel */}
-                <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-card shadow-lg transform transition-transform duration-300 ease-in-out">
-                    <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            {t("app.title")}
-                        </h1>
-                        <button 
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="rounded-md text-muted-foreground hover:text-foreground focus:outline-none"
+                {/* Simple iPhone-style Toggle */}
+                <div className="mb-6 rounded-lg bg-white p-6 shadow-lg">
+                    <div className="mb-4 text-center">
+                        <h3 className="text-lg font-semibold text-gray-900">Search Mode</h3>
+                    </div>
+
+                    {/* Clean iOS-style Toggle */}
+                    <div className="flex items-center justify-center space-x-4">
+                        <span className={`text-sm font-medium ${voiceSearchMode === "guarded" ? "text-blue-600" : "text-gray-500"}`}>Your PDFs</span>
+                        <button
+                            onClick={() => setVoiceSearchMode(voiceSearchMode === "guarded" ? "unguarded" : "guarded")}
+                            className={`relative h-8 w-14 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                voiceSearchMode === "guarded" ? "bg-blue-600" : "bg-gray-300"
+                            }`}
                         >
-                            <X className="h-6 w-6" />
+                            <div
+                                className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out ${
+                                    voiceSearchMode === "guarded" ? "translate-x-1" : "translate-x-7"
+                                }`}
+                            />
                         </button>
+                        <span className={`text-sm font-medium ${voiceSearchMode === "unguarded" ? "text-blue-600" : "text-gray-500"}`}>Internet</span>
                     </div>
-                    <div className="px-2 py-3 h-full overflow-y-auto">
-                        <nav className="space-y-1">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => {
-                                        setActiveTab(tab.id);
-                                        setMobileMenuOpen(false);
-                                    }}
-                                    className={`group flex items-center px-3 py-4 text-base font-medium rounded-md w-full ${
-                                        activeTab === tab.id
-                                            ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                    }`}
-                                >
-                                    <div className={`mr-4 ${
-                                        activeTab === tab.id ? "text-purple-500 dark:text-purple-400" : "text-muted-foreground group-hover:text-foreground"
-                                    }`}>
-                                        {tab.icon}
-                                    </div>
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </nav>
+
+                    {/* Simple status */}
+                    <div className="mt-4 text-center">
+                        <span className="text-sm text-gray-600">
+                            {voiceSearchMode === "guarded" ? "🔒 Searching your documents only" : "🌐 Searching all documents"}
+                        </span>
                     </div>
                 </div>
-            </div>
 
-            {/* Mobile header */}
-            <div className="md:hidden bg-card border-b border-border p-4">
-                <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => setMobileMenuOpen(true)}
-                        className="p-2 -ml-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                <div className="mb-4 flex flex-col items-center justify-center">
+                    {audioError && (
+                        <div className="mb-4 max-w-md rounded-lg border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+                            <p className="text-sm">
+                                <strong>Microphone Error:</strong> {audioError}
+                            </p>
+                            <p className="mt-1 text-xs">Please check your browser settings and allow microphone access.</p>
+                            <button onClick={() => setAudioError(null)} className="mt-2 text-xs underline hover:no-underline">
+                                Try Again
+                            </button>
+                        </div>
+                    )}
+                    <Button
+                        onClick={onToggleListening}
+                        className={`h-12 w-60 ${isRecording ? "bg-red-600 hover:bg-red-700" : "bg-purple-500 hover:bg-purple-600"}`}
+                        aria-label={isRecording ? t("app.stopRecording") : t("app.startRecording")}
+                        disabled={!!audioError && !isRecording}
                     >
-                        <Menu className="h-6 w-6" />
-                    </button>
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        {tabs.find(tab => tab.id === activeTab)?.label}
-                    </h1>
-                    <InternetSpeedIndicator />
+                        {isRecording ? (
+                            <>
+                                <MicOff className="mr-2 h-4 w-4" />
+                                {t("app.stopConversation")}
+                            </>
+                        ) : (
+                            <>
+                                <Mic className="mr-2 h-6 w-6" />
+                                {audioError ? "Fix Microphone Issues" : `Start Conversation (${voiceSearchMode})`}
+                            </>
+                        )}
+                    </Button>
+                    <StatusMessage isRecording={isRecording} />
                 </div>
-            </div>
+                <GroundingFiles files={groundingFiles} onSelected={setSelectedFile} />
+            </main>
 
-            {/* Main content */}
-            <div className="flex flex-col flex-1 overflow-hidden">
-                <div className="hidden md:flex md:items-center md:justify-between md:px-6 md:py-3 md:border-b md:border-border">
-                    <h2 className="text-xl font-semibold text-foreground">
-                        {tabs.find(tab => tab.id === activeTab)?.label}
-                    </h2>
-                    <InternetSpeedIndicator />
-                </div>
-                
-                <main className="flex-1 relative overflow-y-auto focus:outline-none">
-                    <div className="py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
-                        {activeTab === "conversation" && (
-                            <div className="max-w-3xl mx-auto">
-                                <ConversationInterface 
-                                    isRecording={isRecording}
-                                    onToggleListening={onToggleListening}
-                                    groundingFiles={groundingFiles}
-                                    onFileSelected={setSelectedFile}
-                                />
-                            </div>
-                        )}
-                        
-                        {activeTab === "documents" && (
-                            <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-                                <TabNavigation
-                                    activeTab={activeDocumentTab}
-                                    onTabChange={setActiveDocumentTab}
-                                    tabs={[
-                                        { id: "search", label: "Search Documents" },
-                                        { id: "jobs", label: "Upload & Process" },
-                                    ]}
-                                    className="mb-4"
-                                />
-
-                                {activeDocumentTab === "search" && (
-                                    <div className="bg-card rounded-lg shadow p-4 sm:p-6">
-                                        <IndexedDocuments />
-                                    </div>
-                                )}
-
-                                {activeDocumentTab === "jobs" && (
-                                    <div className="space-y-4 sm:space-y-6">
-                                        <div className="bg-card rounded-lg shadow p-4 sm:p-6">
-                                            <h3 className="text-lg font-medium mb-4">Upload Document</h3>
-                                            <PDFUploader />
-                                        </div>
-                                        <div className="bg-card rounded-lg shadow p-4 sm:p-6">
-                                            <h3 className="text-lg font-medium mb-4">Processing Jobs</h3>
-                                            <PendingJobs />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        
-                        {activeTab === "settings" && (
-                            <div className="max-w-3xl mx-auto">
-                                <SettingsPage />
-                            </div>
-                        )}
-                    </div>
-                </main>
-                
-                <footer className="hidden md:block bg-card border-t border-border p-4 text-center text-sm text-muted-foreground">
-                    <p>{t("app.footer")}</p>
-                </footer>
-            </div>
+            <footer className="py-4 text-center">
+                <p>{t("app.footer")}</p>
+            </footer>
 
             <GroundingFileView groundingFile={selectedFile} onClosed={() => setSelectedFile(null)} />
         </div>
+    );
+}
+
+function App() {
+    const { isAuthenticated } = useAuth();
+
+    const themeConfig = {
+        algorithm: theme.defaultAlgorithm,
+        token: {
+            colorPrimary: "#6366f1",
+            colorSuccess: "#10b981",
+            colorWarning: "#f59e0b",
+            colorError: "#ef4444",
+            borderRadius: 8
+        }
+    };
+
+    return (
+        <ConfigProvider theme={themeConfig}>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<LoginAntd />} />
+                <Route path="/landing" element={<Landing />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/login" />} />
+                <Route path="/analyze" element={isAuthenticated ? <Analyze /> : <Navigate to="/login" />} />
+                <Route path="/enhanced-pdf" element={isAuthenticated ? <EnhancedPDFProcessor /> : <Navigate to="/login" />} />
+                <Route path="/call" element={isAuthenticated ? <CallInterface /> : <Navigate to="/login" />} />
+                <Route path="/app" element={isAuthenticated ? <MainApp /> : <Navigate to="/login" />} />
+            </Routes>
+        </ConfigProvider>
     );
 }
 

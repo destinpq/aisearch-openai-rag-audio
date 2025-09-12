@@ -2,6 +2,9 @@ export type GroundingFile = {
     id: string;
     name: string;
     content: string;
+    highlightLine?: number; // Line number to highlight (1-indexed)
+    highlightText?: string; // Specific text to highlight
+    searchMode?: "guarded" | "unguarded"; // Search mode for this file
 };
 
 export type HistoryItem = {
@@ -78,4 +81,5 @@ export type ExtensionMiddleTierToolResponse = {
 
 export type ToolResult = {
     sources: { chunk_id: string; title: string; chunk: string }[];
+    search_mode?: "guarded" | "unguarded";
 };

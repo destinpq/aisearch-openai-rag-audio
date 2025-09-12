@@ -11,12 +11,6 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 logger = logging.getLogger("voicerag")
 
-# Configure more detailed logging for troubleshooting
-logging.basicConfig(level=logging.INFO)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(handler)
-
 class ToolResultDirection(Enum):
     TO_SERVER = 1
     TO_CLIENT = 2
@@ -35,7 +29,7 @@ class ToolResult:
         return self.text if type(self.text) == str else json.dumps(self.text)
 
 class Tool:
-    target: Callable[..., ToolResult]
+    target: Callable[..., Any]  # Can return ToolResult or Coroutine[Any, Any, ToolResult]
     schema: Any
 
     def __init__(self, target: Any, schema: Any):
@@ -124,53 +118,23 @@ class RTMiddleTier:
                         tool_call = self._tools_pending[message["item"]["call_id"]]
                         tool = self.tools[item["name"]]
                         args = item["arguments"]
-                        try:
-                            # Add error handling for JSON parsing
-                            parsed_args = None
-                            try:
-                                parsed_args = json.loads(args)
-                            except json.JSONDecodeError as e:
-                                logger.error(f"JSON decode error in arguments: {e}")
-                                logger.error(f"Problematic JSON: {args}")
-                                # Attempt to fix common JSON issues
-                                fixed_args = args.strip()
-                                if fixed_args.startswith('"') and fixed_args.endswith('"'):
-                                    # Handle double-quoted string
-                                    fixed_args = fixed_args[1:-1].replace('\\"', '"')
-                                try:
-                                    parsed_args = json.loads(fixed_args)
-                                except:
-                                    # If still failing, create a basic valid JSON object
-                                    parsed_args = {"query": "error in query parsing"}
-                            
-                            result = await tool.target(parsed_args)
-                            await server_ws.send_json({
-                                "type": "conversation.item.create",
-                                "item": {
-                                    "type": "function_call_output",
-                                    "call_id": item["call_id"],
-                                    "output": result.to_text() if result.destination == ToolResultDirection.TO_SERVER else ""
-                                }
-                            })
-                            if result.destination == ToolResultDirection.TO_CLIENT:
-                                # TODO: this will break clients that don't know about this extra message, rewrite 
-                                # this to be a regular text message with a special marker of some sort
-                                await client_ws.send_json({
-                                    "type": "extension.middle_tier_tool_response",
-                                    "previous_item_id": tool_call.previous_id,
-                                    "tool_name": item["name"],
-                                    "tool_result": result.to_text()
-                                })
-                        except Exception as e:
-                            logger.error(f"Error processing tool call: {e}")
-                            # Send a fallback response to prevent the conversation from hanging
-                            await server_ws.send_json({
-                                "type": "conversation.item.create",
-                                "item": {
-                                    "type": "function_call_output",
-                                    "call_id": item["call_id"],
-                                    "output": "Error processing tool call"
-                                }
+                        result = await tool.target(json.loads(args), client_ws)
+                        await server_ws.send_json({
+                            "type": "conversation.item.create",
+                            "item": {
+                                "type": "function_call_output",
+                                "call_id": item["call_id"],
+                                "output": result.to_text() if result.destination == ToolResultDirection.TO_SERVER else ""
+                            }
+                        })
+                        if result.destination == ToolResultDirection.TO_CLIENT:
+                            # TODO: this will break clients that don't know about this extra message, rewrite 
+                            # this to be a regular text message with a special marker of some sort
+                            await client_ws.send_json({
+                                "type": "extension.middle_tier_tool_response",
+                                "previous_item_id": tool_call.previous_id,
+                                "tool_name": item["name"],
+                                "tool_result": result.to_text()
                             })
                         updated_message = None
 
@@ -181,22 +145,6 @@ class RTMiddleTier:
                             "type": "response.create"
                         })
                     if "response" in message:
-                        # Check if the response contains information that might not be from the knowledge base
-                        if "output" in message["response"] and any(output.get("type") == "text" for output in message["response"]["output"]):
-                            # Process the response to ensure it's from the knowledge base
-                            has_search_call = any(output.get("type") == "function_call" and output.get("name") == "search" 
-                                                 for output in message["response"]["output"])
-                            has_grounding = any(output.get("type") == "function_call" and output.get("name") == "report_grounding" 
-                                               for output in message["response"]["output"])
-                            
-                            # If no search was performed or no grounding was provided, this might be a generic answer
-                            if not has_search_call or not has_grounding:
-                                # Replace the response with a message about using the knowledge base only
-                                for output in message["response"]["output"]:
-                                    if output.get("type") == "text":
-                                        output["text"] = "I can only provide information found in my knowledge base. Please ask a question that I can answer using my database."
-                                updated_message = json.dumps(message)
-                        
                         replace = False
                         for i, output in enumerate(reversed(message["response"]["output"])):
                             if output["type"] == "function_call":
@@ -271,7 +219,29 @@ class RTMiddleTier:
                     pass
 
     async def _websocket_handler(self, request: web.Request):
+        # Extract search mode from query parameters
+        search_mode = request.query.get('mode', 'unguarded')  # Default to unguarded
+        
+        # Extract user_id from Authorization header if present
+        user_id = None
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                token = auth_header.split(' ')[1]
+                # Import here to avoid circular imports
+                import jwt
+                import os
+                jwt_secret = os.environ.get("JWT_SECRET", "your-secret-key")
+                payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+                user_id = payload.get('user_id')
+            except Exception as e:
+                print(f"Error decoding JWT: {e}")
+                pass  # Invalid token, proceed without user_id
+        
+        # Store the search mode and user_id for this session
         ws = web.WebSocketResponse()
+        ws.search_mode = search_mode
+        ws.user_id = user_id
         await ws.prepare(request)
         await self._forward_messages(ws)
         return ws

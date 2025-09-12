@@ -12,6 +12,7 @@ param environmentName string
   'brazilsouth'
   'canadacentral'
   'canadaeast'
+  'eastus'
   'eastus2'
   'northcentralus'
   'westus'
@@ -113,7 +114,7 @@ param webAppExists bool
 param azureContainerAppsWorkloadProfile string
 
 param acaIdentityName string = '${environmentName}-aca-identity'
-param containerRegistryName string = '${replace(environmentName, '-', '')}acr'
+param containerRegistryName string = '${toLower(replace(environmentName, '-', ''))}acr'
 
 // Figure out if we're running as a user or service principal
 var principalType = empty(runningOnGh) && empty(runningOnAdo) ? 'User' : 'ServicePrincipal'
@@ -178,49 +179,7 @@ module containerApps 'core/host/container-apps.bicep' = {
   }
 }
 
-// Container Apps for the web application (Python Quart app with JS frontend)
-module acaBackend 'core/host/container-app-upsert.bicep' = {
-  name: 'aca-web'
-  scope: resourceGroup
-  dependsOn: [
-    containerApps
-    acaIdentity
-  ]
-  params: {
-    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesContainerApps}backend-${resourceToken}'
-    location: location
-    identityName: acaIdentityName
-    exists: webAppExists
-    workloadProfile: azureContainerAppsWorkloadProfile
-    containerRegistryName: containerApps.outputs.registryName
-    containerAppsEnvironmentName: containerApps.outputs.environmentName
-    identityType: 'UserAssigned'
-    tags: union(tags, { 'azd-service-name': 'backend' })
-    targetPort: 8000
-    containerCpuCoreCount: '1.0'
-    containerMemory: '2Gi'
-    env: {
-      AZURE_SEARCH_ENDPOINT: reuseExistingSearch
-        ? searchEndpoint
-        : 'https://${searchService.outputs.name}.search.windows.net'
-      AZURE_SEARCH_INDEX: searchIndexName
-      AZURE_SEARCH_SEMANTIC_CONFIGURATION: searchSemanticConfiguration
-      AZURE_SEARCH_IDENTIFIER_FIELD: searchIdentifierField
-      AZURE_SEARCH_CONTENT_FIELD: searchContentField
-      AZURE_SEARCH_TITLE_FIELD: searchTitleField
-      AZURE_SEARCH_EMBEDDING_FIELD: searchEmbeddingField
-      AZURE_SEARCH_USE_VECTOR_QUERY: searchUseVectorQuery
-      AZURE_OPENAI_ENDPOINT: reuseExistingOpenAi ? openAiEndpoint : openAi.outputs.endpoint
-      AZURE_OPENAI_REALTIME_DEPLOYMENT: reuseExistingOpenAi ? openAiRealtimeDeployment : openAiDeployments[0].name
-      AZURE_OPENAI_REALTIME_VOICE_CHOICE: openAiRealtimeVoiceChoice
-      // CORS support, for frontends on other hosts
-      RUNNING_IN_PRODUCTION: 'true'
-      // For using managed identity to access Azure resources. See https://github.com/microsoft/azure-container-apps/issues/442
-      AZURE_CLIENT_ID: acaIdentity.outputs.clientId
-    }
-  }
-}
-
+// Define variables and modules needed for acaBackend
 var embedModel = 'text-embedding-3-large'
 var openAiDeployments = [
   {
@@ -249,23 +208,21 @@ var openAiDeployments = [
   }
 ]
 
-module openAi 'br/public:avm/res/cognitive-services/account:0.8.0' = if (!reuseExistingOpenAi) {
+module openAi 'br/public:avm/res/cognitive-services/account:0.8.0' = {
   name: 'openai'
   scope: openAiResourceGroup
   params: {
-    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+    name: reuseExistingOpenAi ? 'dummy-openai-${resourceToken}' : (!empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}')
     location: openAiServiceLocation
     tags: tags
     kind: 'OpenAI'
-    customSubDomainName: !empty(openAiServiceName)
-      ? openAiServiceName
-      : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+    customSubDomainName: reuseExistingOpenAi ? 'dummy-openai-${resourceToken}' : (!empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}')
     sku: 'S0'
-    deployments: openAiDeployments
+    deployments: reuseExistingOpenAi ? [] : openAiDeployments
     disableLocalAuth: true
     publicNetworkAccess: 'Enabled'
     networkAcls: {}
-    roleAssignments: [
+    roleAssignments: reuseExistingOpenAi ? [] : [
       {
         roleDefinitionIdOrName: 'Cognitive Services OpenAI User'
         principalId: principalId
@@ -275,21 +232,21 @@ module openAi 'br/public:avm/res/cognitive-services/account:0.8.0' = if (!reuseE
   }
 }
 
-module searchService 'br/public:avm/res/search/search-service:0.7.1' = if (!reuseExistingSearch) {
+module searchService 'br/public:avm/res/search/search-service:0.7.1' = {
   name: 'search-service'
   scope: searchServiceResourceGroup
   params: {
-    name: !empty(searchServiceName) ? searchServiceName : 'gptkb-${resourceToken}'
+    name: reuseExistingSearch ? 'dummy-search-${resourceToken}' : (!empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}')
     location: !empty(searchServiceLocation) ? searchServiceLocation : location
     tags: tags
     disableLocalAuth: true
-    sku: searchServiceSkuName
+    sku: reuseExistingSearch ? 'free' : searchServiceSkuName
     replicaCount: 1
-    semanticSearch: actualSearchServiceSemanticRankerLevel
+    semanticSearch: reuseExistingSearch ? 'disabled' : actualSearchServiceSemanticRankerLevel
     // An outbound managed identity is required for integrated vectorization to work,
     // and is only supported on non-free tiers:
-    managedIdentities: { systemAssigned: true }
-    roleAssignments: [
+    managedIdentities: reuseExistingSearch ? null : { systemAssigned: true }
+    roleAssignments: reuseExistingSearch ? [] : [
       {
         roleDefinitionIdOrName: 'Search Index Data Reader'
         principalId: principalId
@@ -306,6 +263,44 @@ module searchService 'br/public:avm/res/search/search-service:0.7.1' = if (!reus
         principalType: principalType
       }
     ]
+  }
+}
+
+// Container Apps for the web application (Python Quart app with JS frontend)
+module acaBackend 'core/host/container-app-upsert.bicep' = {
+  name: 'aca-web'
+  scope: resourceGroup
+  params: {
+    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesContainerApps}backend-${resourceToken}'
+    location: location
+    identityName: acaIdentityName
+    exists: webAppExists
+    workloadProfile: azureContainerAppsWorkloadProfile
+    containerRegistryName: containerApps.outputs.registryName
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    identityType: 'UserAssigned'
+    tags: union(tags, { 'azd-service-name': 'backend' })
+    targetPort: 8000
+    containerCpuCoreCount: '1.0'
+    containerMemory: '2Gi'
+    allowedOrigins: [ 'https://converse.destinpq.com', 'https://converse-api.destinpq.com' ]
+    env: {
+      AZURE_SEARCH_ENDPOINT: reuseExistingSearch ? searchEndpoint : 'https://${searchService.outputs.name}.search.windows.net'
+      AZURE_SEARCH_INDEX: searchIndexName
+      AZURE_SEARCH_SEMANTIC_CONFIGURATION: searchSemanticConfiguration
+      AZURE_SEARCH_IDENTIFIER_FIELD: searchIdentifierField
+      AZURE_SEARCH_CONTENT_FIELD: searchContentField
+      AZURE_SEARCH_TITLE_FIELD: searchTitleField
+      AZURE_SEARCH_EMBEDDING_FIELD: searchEmbeddingField
+      AZURE_SEARCH_USE_VECTOR_QUERY: searchUseVectorQuery
+      AZURE_OPENAI_ENDPOINT: reuseExistingOpenAi ? openAiEndpoint : openAi.outputs.endpoint
+      AZURE_OPENAI_REALTIME_DEPLOYMENT: reuseExistingOpenAi ? openAiRealtimeDeployment : openAiDeployments[0].name
+      AZURE_OPENAI_REALTIME_VOICE_CHOICE: openAiRealtimeVoiceChoice
+      // CORS support, for frontends on other hosts
+      RUNNING_IN_PRODUCTION: 'true'
+      // For using managed identity to access Azure resources. See https://github.com/microsoft/azure-container-apps/issues/442
+      AZURE_CLIENT_ID: acaIdentity.outputs.clientId
+    }
   }
 }
 
@@ -352,7 +347,7 @@ module storage 'br/public:avm/res/storage/storage-account:0.9.1' = {
 }
 
 // Roles for the backend to access other services
-module openAiRoleBackend 'core/security/role.bicep' = {
+module openAiRoleBackend 'core/security/role.bicep' = if (!reuseExistingOpenAi) {
   scope: openAiResourceGroup
   name: 'openai-role-backend'
   params: {
@@ -364,7 +359,7 @@ module openAiRoleBackend 'core/security/role.bicep' = {
 
 // Used to issue search queries
 // https://learn.microsoft.com/azure/search/search-security-rbac
-module searchRoleBackend 'core/security/role.bicep' = {
+module searchRoleBackend 'core/security/role.bicep' = if (!reuseExistingSearch) {
   scope: searchServiceResourceGroup
   name: 'search-role-backend'
   params: {
@@ -419,7 +414,7 @@ output AZURE_SEARCH_TITLE_FIELD string = searchTitleField
 output AZURE_SEARCH_EMBEDDING_FIELD string = searchEmbeddingField
 output AZURE_SEARCH_USE_VECTOR_QUERY bool = searchUseVectorQuery
 
-output AZURE_STORAGE_ENDPOINT string = 'https://${storage.outputs.name}.blob.core.windows.net'
+output AZURE_STORAGE_ENDPOINT string = 'https://${storage.outputs.name}.blob.${environment().suffixes.storage}'
 output AZURE_STORAGE_ACCOUNT string = storage.outputs.name
 output AZURE_STORAGE_CONNECTION_STRING string = 'ResourceId=/subscriptions/${subscription().subscriptionId}/resourceGroups/${storageResourceGroup.name}/providers/Microsoft.Storage/storageAccounts/${storage.outputs.name}'
 output AZURE_STORAGE_CONTAINER string = storageContainerName

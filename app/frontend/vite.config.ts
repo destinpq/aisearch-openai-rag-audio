@@ -1,44 +1,25 @@
-import path from "path";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
 export default defineConfig({
-    plugins: [react()],
-    build: {
-        outDir: "../backend/static",
-        emptyOutDir: true,
-        sourcemap: true
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
-    resolve: {
-        preserveSymlinks: true,
-        alias: {
-            "@": path.resolve(__dirname, "./src")
-        }
-    },
-    server: {
-        proxy: {
-            "/realtime": {
-                target: "ws://localhost:8765",
-                ws: true,
-                rewriteWsOrigin: true
-            },
-            "/api": {
-                target: "http://localhost:8765",
-                changeOrigin: true
-            },
-            "/process-pdf": {
-                target: "http://localhost:8765",
-                changeOrigin: true
-            },
-            "/document": {
-                target: "http://localhost:8765",
-                changeOrigin: true
-            },
-            "/documents": {
-                target: "http://localhost:8765",
-                changeOrigin: true
-            }
-        }
+  },
+  build: {
+    outDir: '../backend/static',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-${Date.now()}.[hash].js`,
+        chunkFileNames: `assets/[name]-${Date.now()}.[hash].js`,
+        assetFileNames: `assets/[name]-${Date.now()}.[hash].[ext]`
+      }
     }
-});
+  }
+})
+

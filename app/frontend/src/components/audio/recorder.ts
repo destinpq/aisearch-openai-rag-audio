@@ -30,7 +30,9 @@ export class Recorder {
             this.mediaStreamSource.connect(this.workletNode);
             this.workletNode.connect(this.audioContext.destination);
         } catch (error) {
-            this.stop();
+            console.error("Audio recorder error:", error);
+            await this.stop();
+            throw error;
         }
     }
 
