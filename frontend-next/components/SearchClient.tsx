@@ -112,13 +112,16 @@ export default function SearchClient() {
     <div className={styles.wrapper}>
       <div className={styles.controls}>
         {!convoActive ? (
-          <button
-            className={styles.startBtn}
-            onClick={startConvo}
-            aria-label="Start conversation"
-          >
-            Start Conversation
-          </button>
+          <div className={styles.startWrap}>
+            <button
+              className={styles.startBtn}
+              onClick={startConvo}
+              aria-label="Start conversation"
+            >
+              Start Conversation
+            </button>
+            <div className={styles.sub}>Focus on talking — press Start</div>
+          </div>
         ) : (
           <div className={styles.micRow}>
             <div className={styles.micWrap}>
@@ -148,6 +151,7 @@ export default function SearchClient() {
         value={query}
         onChange={setQuery}
         inputRef={inputRef}
+        compact={convoActive}
       />
 
       <div className={styles.results}>

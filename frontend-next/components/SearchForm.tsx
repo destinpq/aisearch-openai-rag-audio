@@ -7,11 +7,13 @@ export default function SearchForm({
   value = "",
   onChange,
   inputRef,
+  compact = false,
 }: {
   onSearch: (q: string) => void;
   value?: string;
   onChange?: (v: string) => void;
   inputRef?: ForwardedRef<HTMLInputElement> | null;
+  compact?: boolean;
 }) {
   const internalRef = useRef<HTMLInputElement | null>(null);
   const ref = (inputRef as any) || internalRef;
@@ -22,7 +24,9 @@ export default function SearchForm({
         e.preventDefault();
         onSearch(value || "");
       }}
-      className={styles.form}
+      className={
+        compact ? `${styles.form} ${styles.compact}` : `${styles.form}`
+      }
     >
       <input
         ref={ref as any}

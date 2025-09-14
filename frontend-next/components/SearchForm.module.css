@@ -2,6 +2,10 @@
   display: flex;
   gap: 12px;
 }
+.compact {
+  opacity: 0.8;
+  transform: translateY(4px);
+}
 .input {
   flex: 1;
   padding: 10px 12px;

@@ -8,16 +8,18 @@
 }
 .controls {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 6px;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 .startBtn {
-  background: #111827;
+  background: var(--accent);
   color: #fff;
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 12px 22px;
+  border-radius: 12px;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
 }
 .micRow {
   display: flex;
@@ -28,12 +30,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
   background: #eef2ff;
   border: 1px solid rgba(37, 99, 235, 0.12);
   cursor: pointer;
+  font-size: 24px;
 }
 .micButton.active {
   background: #2563eb;
@@ -46,6 +49,16 @@
   border-color: #1e40af;
 }
 .hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+.startWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.sub {
   color: var(--muted);
   font-size: 13px;
 }
