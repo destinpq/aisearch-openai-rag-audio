@@ -1,0 +1,72 @@
+name: CI/CD — Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        working-directory: frontend-next
+        run: |
+          npm ci
+          npm run prebuild || true
+          npm run build
+
+      - name: Build backend
+        working-directory: backend/nestjs
+        run: |
+          npm ci
+          npm run build
+
+      - name: Copy build artifacts to server (SCP)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: |
+            frontend-next/.next
+            frontend-next/public
+            backend/nestjs/dist
+            frontend-next/package.json
+          target: ${{ secrets.REMOTE_PATH }}
+
+      - name: Run remote deploy commands (restart pm2)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            echo "Deploying to $REMOTE_HOST"
+            cd ${{ secrets.REMOTE_PATH }} || exit 1
+            # Ensure frontend has npm deps for production start
+            if [ -d frontend-next ]; then
+              cd frontend-next
+              npm ci --production || true
+              pm2 restart converse-frontend || pm2 start npm --name converse-frontend -- start
+              cd ..
+            fi
+            # Ensure backend has deps and restart
+            if [ -d backend/nestjs ]; then
+              cd backend/nestjs
+              npm ci --production || true
+              pm2 restart converse-backend || pm2 start node --name converse-backend -- dist/src/main.js
+              cd ..
+            fi
