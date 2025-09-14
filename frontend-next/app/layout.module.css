@@ -1,0 +1,31 @@
+.body {
+  min-height: 100%;
+  background: var(--bg);
+  color: #0f172a;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 18px 0;
+}
