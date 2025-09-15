@@ -72,8 +72,7 @@ Contact
 
 - If you want automatic zero-downtime deploys, consider using a more advanced deploy tool (pm2, capistrano, or Kubernetes) and a CI pipeline.
 
-CI/CD from GitHub
------------------
+## CI/CD from GitHub
 
 This repository includes a GitHub Actions workflow at `.github/workflows/ci-cd-deploy.yml` which builds `frontend-next` and `backend/nestjs`, copies artifacts to the server via SCP, and restarts processes via SSH.
 
@@ -86,6 +85,7 @@ Required repository secrets (GitHub → Settings → Secrets):
 - `REMOTE_PATH` — absolute path on the server where the repo is deployed (e.g., `/home/azureuser/aisearch-openai-rag-audio`)
 
 What the workflow does:
+
 - Checks out code and sets up Node.js
 - Builds `frontend-next` (Tailwind prebuild + Next build)
 - Builds `backend/nestjs` (TypeScript compile)
@@ -93,6 +93,6 @@ What the workflow does:
 - Runs remote commands to install production deps and restart `pm2` processes for the frontend and backend
 
 Notes:
+
 - You must install `pm2` and configure it on the server. The workflow uses `pm2 restart` / `pm2 start` commands; you can adapt the remote script to use systemd instead.
 - For increased safety use rsync with atomic symlink swaps and health checks.
-
