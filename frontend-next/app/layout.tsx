@@ -11,8 +11,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -29,11 +30,13 @@ export default function RootLayout({
         style={
           {
             // set CSS variables inline so component CSS modules can use them
-            ["--bg" as any]: "#f8fafc",
+            ["--bg" as any]: "#f7fafc",
             ["--card" as any]: "#ffffff",
             ["--muted" as any]: "#6b7280",
-            ["--accent" as any]: "#2563eb",
+            ["--accent" as any]: "#6d28d9",
             ["--radius" as any]: "12px",
+            ["--text-primary" as any]: "#0f172a",
+            ["--text-secondary" as any]: "#374151",
           } as React.CSSProperties
         }
       >

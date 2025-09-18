@@ -1,4 +1,4 @@
-// File: /home/azureuser/aisearch-openai-rag-audio/frontend-next/app/page.tsx
+// File: /Users/pratik/Desktop/Work/DestinPQ/EXTERNAL/Converse/aisearch-openai-rag-audio/frontend-next/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

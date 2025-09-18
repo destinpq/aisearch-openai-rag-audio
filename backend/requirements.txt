@@ -1,1 +1,8 @@
 aiohttp
+
+httpx[http2]
+
+openai
+
+python-dotenv
+gTTS

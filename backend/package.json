@@ -1,0 +1,8 @@
+{
+  "name": "converse-backend",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "bash ../scripts/kill-port.sh ${BACKEND_PORT:-2355} && python app.py",
+    "start:dev": "bash ../scripts/kill-port.sh ${BACKEND_PORT:-2355} && python app.py"
+  }
+}

@@ -2,42 +2,110 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background: var(--bg, #f7fafc);
+  padding: 32px 20px;
+  box-sizing: border-box;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+  color: var(--text-primary, #0f172a);
+}
+
+/* Responsive padding */
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 18px 12px;
+    gap: 12px;
+  }
 }
 .results {
   margin-top: 10px;
+  width: 100%;
+  max-width: 900px;
 }
 .controls {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 900px;
 }
-.startBtn {
-  background: var(--accent);
+
+.stylishBtn {
+  background: #2563eb;
   color: #fff;
-  padding: 12px 22px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 700;
-  font-size: 16px;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+  padding: 0.65em 1.1em;
+  border-radius: 8px;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  margin: 0;
+  transition: all 0.12s ease;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+}
+
+.stylishBtn:hover,
+.stylishBtn:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.18);
+}
+.stylishBtn:active {
+  transform: translateY(0);
+}
+
+.launching {
+  /* subtle transform when clicked */
+  transition: transform 220ms ease;
+}
+
+@keyframes launchUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-40vh) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-55vh) scale(0.9);
+    opacity: 0;
+  }
 }
 .micRow {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .micButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: #eef2ff;
-  border: 1px solid rgba(37, 99, 235, 0.12);
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
   cursor: pointer;
-  font-size: 24px;
+  font-size: 20px;
 }
+
+/* Responsive mic button */
+@media (max-width: 768px) {
+  .micButton {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
 .micButton.active {
   background: #2563eb;
   color: #fff;
@@ -49,16 +117,363 @@
   border-color: #1e40af;
 }
 .hint {
-  color: var(--muted);
+  color: var(--muted, #6b7280);
   font-size: 13px;
+  text-align: center;
+}
+
+.typingCursor {
+  display: inline-block;
+  width: 8px;
+  height: 20px;
+  background: linear-gradient(180deg, #111827, #111827);
+  margin-left: 8px;
+  animation: blink 1s steps(2, start) infinite;
+  vertical-align: bottom;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
 .startWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  text-align: center;
 }
 .sub {
-  color: var(--muted);
+  color: var(--muted, #6b7280);
   font-size: 13px;
+}
+
+.stopBtn {
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0.45em 0.9em;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+/* HUD circular overlay */
+.hudOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 60;
+}
+.hudBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.hudCircle {
+  pointer-events: auto;
+  width: min(90vw, 760px);
+  max-width: 760px;
+  border-radius: 12px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  transition: transform 180ms ease, width 180ms, height 180ms;
+  transform: scale(1);
+  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.12);
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.hudCircle.shrink {
+  width: min(70vw, 540px);
+  transform: scale(0.98);
+}
+
+/* Responsive HUD padding */
+@media (max-width: 768px) {
+  .hudCircle {
+    padding: 16px;
+  }
+  .hudCircle.shrink {
+    width: min(70vw, 280px);
+    height: min(70vw, 280px);
+  }
+}
+
+.hudText {
+  max-width: 90%;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  padding: 8px 12px;
+  color: #0f172a;
+}
+
+/* Responsive HUD text */
+@media (max-width: 768px) {
+  .hudText {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+  }
+}
+
+.hudSub {
+  margin-top: 12px;
+  color: var(--muted, #6b7280);
+  font-size: 0.9rem;
+}
+.hudMicLarge {
+  font-size: 40px;
+}
+
+/* Streaming HUD layout */
+.hudStream {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.streamText {
+  max-height: 160px;
+  overflow-y: auto;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.35;
+  color: #0f172a;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Responsive stream text */
+@media (max-width: 768px) {
+  .streamText {
+    font-size: 0.9rem;
+    max-height: 120px;
+  }
+}
+
+.translitLine {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Text box for user-provided text to read/send */
+.textBoxWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+.textBox {
+  width: 100%;
+  max-width: 560px;
+  min-height: 84px;
+  resize: vertical;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.textBox:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Responsive text box */
+@media (max-width: 768px) {
+  .textBox {
+    font-size: 0.9rem;
+    padding: 10px;
+    min-height: 70px;
+  }
+}
+
+.textBoxActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Responsive text box actions */
+@media (max-width: 768px) {
+  .textBoxActions {
+    gap: 6px;
+  }
+}
+
+.dialectSelect {
+  padding: 0.45em 0.7em;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+}
+
+/* Responsive select */
+@media (max-width: 768px) {
+  .dialectSelect {
+    font-size: 12px;
+    padding: 0.4em 0.6em;
+  }
+}
+
+.actionBtn {
+  padding: 0.5em 0.9em;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.actionBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.actionBtn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.actionBtn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive action buttons */
+@media (max-width: 768px) {
+  .actionBtn {
+    padding: 0.4em 0.7em;
+    font-size: 12px;
+  }
+}
+
+.speakingIndicator {
+  font-size: 0.9rem;
+  color: #7ee787;
+}
+.spokenLine {
+  margin-top: 8px;
+  color: #ffdede;
+  font-size: 1rem;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Demo edit panel (commented-out UI snippet) */
+.editPanel {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  max-width: 640px;
+  justify-content: center;
+}
+.editInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: box-shadow 0.18s ease, transform 0.12s ease;
+}
+.editInput:focus {
+  outline: none;
+  box-shadow: 0 6px 28px rgba(59, 130, 246, 0.12);
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+.readBtn {
+  padding: 0.6em 1em;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.readBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px rgba(59, 130, 246, 0.25);
+}
+
+/* Responsive spoken line */
+@media (max-width: 768px) {
+  .spokenLine {
+    font-size: 0.9rem;
+  }
+}
+
+.spokenWordHighlight {
+  background: rgba(255, 255, 0, 0.25);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* TEMP DEBUG: visual highlight to confirm HMR/compiled CSS is loaded. Remove after verification. */
+.debugHighlight {
+  box-shadow: 0 0 0 6px rgba(255, 0, 80, 0.25) inset;
+  border-radius: 8px;
+}
+
+/* Hidden demo wrapper: keeps demo JSX present but invisible in the UI */
+.hiddenDemo {
+  display: none !important;
+}
+
+/* Only-demo layout: center a small edit box + button when enabled */
+.onlyDemoWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 60vh;
 }

@@ -1,37 +1,78 @@
 .form {
   display: flex;
   gap: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
+
+@media (max-width: 768px) {
+  .form {
+    gap: 8px;
+    max-width: 100%;
+    padding: 0 10px;
+  }
+}
+
 .compact {
   opacity: 0.8;
   transform: translateY(4px);
 }
+
 .input {
   flex: 1;
   padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #fff, #fcfcfd);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   box-shadow: inset 0 1px 0 rgba(2, 6, 23, 0.02);
+  font-size: 16px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
+
+@media (max-width: 768px) {
+  .input {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+}
+
 .input:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
 }
+
 .button {
   padding: 10px 16px;
-  border-radius: 10px;
-  background: var(--accent);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: #fff;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
 .micWrap {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
+
 .micButton {
   display: inline-flex;
   align-items: center;
@@ -43,11 +84,20 @@
   border: 1px solid rgba(37, 99, 235, 0.12);
   cursor: pointer;
 }
+
+@media (max-width: 768px) {
+  .micButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 .micButton.active {
   background: #2563eb;
   color: #fff;
   border-color: #1e40af;
 }
+
 .srOnly {
   position: absolute;
   left: -9999px;
